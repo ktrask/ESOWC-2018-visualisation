@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+{{super()}}
+<script src="{{ url_for('static', filename='js/getCoordinates.js') }}"></script>
+<div class="container">
+  <div class="row">
+<!--
+  <div class="col-sm-1">
+</div>
+-->
+<div class="col-sm-1" id="popoverdiv" style=background-color:powderblue;opacity:0.7;visibility:hidden;z-index:2>
+Dies ist ein Text
+</div>
+    <div class="col-sm-9">
+      <form name="pointform" method="post">
+<div id="pointer_div" onclick="point_it(event)" style = "background-image:url('{{ url_for('static', filename='map.png') }}');width:1237px;height:639px;">
+  <img src="{{ url_for('static', filename='point.png') }}" id="cross" style="position:relative;visibility:hidden;z-index:2;">
+  </div>
+
+<!--
+  You pointed on x = <input type="text" name="form_x" size="4" /> - y = <input type="text" name="form_y" size="4" />
+-->
+</form> 
+<!--<img src="{{ url_for('static', filename='map.png') }}">-->
+    </div>
+<!--
+  <div class="col-sm-1">
+</div>
+-->
+    </div>
+</div>
+{% endblock %}
