@@ -1,0 +1,3 @@
+#MSLP Webapp
+
+The mslp_spread.nc and mslp_mean.nc are needed in app/data/ as input data files for the webapp.

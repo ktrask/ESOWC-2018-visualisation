@@ -16,8 +16,12 @@ function printData(destElem, pos_x, pos_y) {
                 y: pos_y
   }).done(function(response) {
     //document.pointform.form_x.value = response['longitude'];
-    $('#popoverdiv').text("Longitude: ".concat(Math.round(response['longitude']* 100) / 100,
-      "\nLatitude: ", Math.round(response['latitude']*100)/100));
+    $('#latitude').text("Latitude: ".concat( Math.round(response['latitude']*100)/100))
+    $('#longitude').text("Longitude: ".concat( Math.round(response['longitude']*100)/100))
+    $('#mslp').text("MSLP: ".concat( Math.round(response['msl']*100)/100))
+    $('#spread').text("Spread: ".concat( Math.round(response['spread']*100)/100))
+    //$('#popoverdiv').text("Longitude: ".concat(Math.round(response['longitude']* 100) / 100,
+    //  "\nLatitude: ", Math.round(response['latitude']*100)/100));
     $('#popoverdiv').css('visibility', "visible");
     //$('#popoverdiv').form_x.value = response['longitude'];
     //document.pointform.form_y.value = response['latitude'];
