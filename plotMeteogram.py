@@ -5,6 +5,7 @@ import datetime
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 nc_f = './forecast.nc'  # Your filename
 nc_fid = Dataset(nc_f, 'r')  # Dataset is the class behavior to open the file
@@ -101,6 +102,54 @@ def plotWindBft(ax, qdata):
     ax.set_ylim(0,10)
     ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+' bft'))
 
+def imscatter(x, y, image, ax=None, zoom=1):
+    #taken from https://stackoverflow.com/questions/22566284/matplotlib-how-to-plot-images-instead-of-points
+    if ax is None:
+        ax = plt.gca()
+    try:
+        image = plt.imread(image)
+    except TypeError:
+        # Likely already an array...
+        pass
+    im = OffsetImage(image, zoom=zoom)
+    x, y = np.atleast_1d(x, y)
+    artists = []
+    for x0, y0 in zip(x, y):
+        ab = AnnotationBbox(im, (x0, y0), xycoords='data', frameon=False)
+        artists.append(ax.add_artist(ab))
+    ax.update_datalim(np.column_stack([x, y]))
+    ax.autoscale()
+    return artists
+
+def getVSUPrainCoordinate(qdata):
+    #print(qdata)
+    #print(qdata[1])
+    if qdata[1] < 1e-6:
+        return(3)
+    if qdata[0.75] < 1e-6:
+        return(1)
+    if qdata[0] > 3e-3:
+        return(6)
+    if qdata[0] > 2e-3:
+        return(5)
+    if qdata[0.25] > 2e-3:
+        return(2)
+    if qdata[0] > 1e-3 or qdata[0.5] > 2e-3:
+        return(4)
+    if qdata[0.25] < 1e-4 and qdata[0.5] > 2e-3:
+        return(2)
+    return(0)
+
+def plotPrecipitationVSUP(ax, qdata):
+    vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
+    #vsupFilenames = ["rain_fuzzy.svg", "rain_fuzzynotraining.svg", "rain_fuzzyraining.svg", "rain_norain.svg", "rain_lightrain.svg", "rain_rain.svg", "rain_strongrain.svg"]
+    files = [vsupFilenames[getVSUPrainCoordinate(quantileData.loc[idx].lsp)] for idx in qdata['lsp'][:, :].index.levels[0]]
+    image_path = './pictogram/'
+    #for (date, filename) in zip(qdata['lsp'][:, :].index.levels[0],files):
+    for (date, filename) in zip(range(0,len(files)),files):
+        imscatter(date,1, image_path+filename, ax=ax, zoom = 0.4)
+
+
 
 plt.figure(figsize=(14,6))
 #plt.xkcd()
@@ -108,26 +157,27 @@ gs = gridspec.GridSpec(3, 1, height_ratios=[4, 2, 1])
 ax1 = plt.subplot(gs[1])
 ax2 = plt.subplot(gs[0])
 ax3 = plt.subplot(gs[2])
-plotPrecipitationBars(ax1, quantileData)
+#plotPrecipitationBars(ax1, quantileData)
+plotPrecipitationVSUP(ax1, quantileData)
 plotTemperature(ax2, quantileData)
 plotWindBft(ax3, quantileData)
 plt.gcf().autofmt_xdate()
 plt.savefig("./output/forecast.png")
 
 #plot ensemble members:
-for ens in range(0,50):
-    plt.figure(figsize=(14,6))
-    gs = gridspec.GridSpec(3, 1, height_ratios=[4, 2, 1]) 
-    ax1 = plt.subplot(gs[1])
-    ax2 = plt.subplot(gs[0])
-    ax3 = plt.subplot(gs[2])
-    plotPrecipitationBars(ax1, quantileData)
-    plotTemperature(ax2, quantileData)
-    plotWindBft(ax3, quantileData)
-    tmp = df.loc[df['number'] == ens]
-    ax2.plot(tmp['time'], tmp['T'], color = "r")
-    ax1.plot(tmp['time'], tmp['lsp']*1e3, color = "r")    
-    ax3.plot(tmp['time'], tmp['bft'], color = "r")
-    plt.gcf().autofmt_xdate()
-    plt.savefig("./output/forecast" + str(ens).zfill(2) + ".png")
-    plt.close()
+#for ens in range(0,50):
+#    plt.figure(figsize=(14,6))
+#    gs = gridspec.GridSpec(3, 1, height_ratios=[4, 2, 1]) 
+#    ax1 = plt.subplot(gs[1])
+#    ax2 = plt.subplot(gs[0])
+#    ax3 = plt.subplot(gs[2])
+#    plotPrecipitationBars(ax1, quantileData)
+#    plotTemperature(ax2, quantileData)
+#    plotWindBft(ax3, quantileData)
+#    tmp = df.loc[df['number'] == ens]
+#    ax2.plot(tmp['time'], tmp['T'], color = "r")
+#    ax1.plot(tmp['time'], tmp['lsp']*1e3, color = "r")    
+#    ax3.plot(tmp['time'], tmp['bft'], color = "r")
+#    plt.gcf().autofmt_xdate()
+#    plt.savefig("./output/forecast" + str(ens).zfill(2) + ".png")
+#    plt.close()
