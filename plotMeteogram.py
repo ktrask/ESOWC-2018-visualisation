@@ -2,6 +2,7 @@ from netCDF4 import Dataset
 import numpy as np
 import pandas as pd
 import datetime
+import json
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
@@ -23,6 +24,12 @@ print(getNearestLonIndex(10))#10°E
 lat = getNearestLatIndex(52)#52°N
 lon = getNearestLonIndex(10)#10°E
 nc_fid.variables['longitude'][:]
+
+with open("2t-10days.json", "r") as fp:
+    temperatureData = json.load(fp)
+with open("tp-10days.json", "r") as fp:
+    precipitationData = json.load(fp)
+
 
 df = pd.DataFrame(data = {'T'  : [],
                           'u10': [],
@@ -80,13 +87,6 @@ df['bft'] = [convertWindToBeaufort(i) for i in df['v'].tolist()]
 
 quantileData = df.groupby('time').quantile([0,0.25,0.5,0.75,1])
 
-def plotPrecipitationBars(ax, qdata):
-    bar050 = ax.bar(x=qdata['lsp'][:,0.5].index,height=qdata['lsp'][:,0.5]*1e3,width = 0.2, color = "#2A7FFF")
-    bar075 = ax.bar(x=qdata['lsp'][:,0.5].index,height=(qdata['lsp'][:,0.75]-qdata['lsp'][:,0.5])*1e3,width = 0.2, bottom = qdata['lsp'][:,0.5]*1e3, color = "#AACCFF")
-    bar100 = ax.bar(x=qdata['lsp'][:,0.5].index,height=(qdata['lsp'][:,1]-qdata['lsp'][:,0.75])*1e3,width = 0.2, bottom = qdata['lsp'][:,0.75]*1e3, color = "#D5E5FF", alpha=0.5)
-    ax.set_ylim(0,2)
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+' mm'))
-
 
 def plotTemperature(ax, qdata):
     ax.fill_between(x= qdata['T'][:,0.75].index, y1=qdata['T'][:,0] , y2=qdata['T'][:,1], color="lightblue", alpha = 0.5)
@@ -124,30 +124,31 @@ def imscatter(x, y, image, ax=None, zoom=1):
 def getVSUPrainCoordinate(qdata):
     #print(qdata)
     #print(qdata[1])
-    if qdata[1] < 1e-6:
+    if qdata['ninety'] < 1e-4:
         return(3)
-    if qdata[0.75] < 1e-6:
-        return(1)
-    if qdata[0] > 3e-3:
+    if qdata['ten'] > 2e-3:
         return(6)
-    if qdata[0] > 2e-3:
+    if qdata['ten'] > 1e-3 and qdata['ninety'] < 2e-3:
         return(5)
-    if qdata[0.25] > 2e-3:
+    if qdata['ten'] > 1e-3:
         return(2)
-    if qdata[0] > 1e-3 or qdata[0.5] > 2e-3:
+    if qdata['ninety'] < 1e-3:
         return(4)
-    if qdata[0.25] < 1e-4 and qdata[0.5] > 2e-3:
+    if qdata['seventy_five'] < 1e-3:
+        return(1)
+    if qdata['twenty_five'] > 1e-3:
         return(2)
     return(0)
 
+
 def plotPrecipitationVSUP(ax, qdata):
-    vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
-    #vsupFilenames = ["rain_fuzzy.svg", "rain_fuzzynotraining.svg", "rain_fuzzyraining.svg", "rain_norain.svg", "rain_lightrain.svg", "rain_rain.svg", "rain_strongrain.svg"]
-    files = [vsupFilenames[getVSUPrainCoordinate(quantileData.loc[idx].lsp)] for idx in qdata['lsp'][:, :].index.levels[0]]
-    image_path = './pictogram/'
+    #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
+    vsupFilenames = ["Stufe1.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe2_Regen.png"]
+    files = [vsupFilenames[getVSUPrainCoordinate({key: qdata['tp'][key][i] for key in qdata['tp']})] for i in range(0,len(qdata['tp']['ten']))]
+    image_path = './pictogram/rain/'
     #for (date, filename) in zip(qdata['lsp'][:, :].index.levels[0],files):
     for (date, filename) in zip(range(0,len(files)),files):
-        imscatter(date,1, image_path+filename, ax=ax, zoom = 0.4)
+        imscatter(date,1, image_path+filename, ax=ax, zoom = 0.2)
 
 
 
@@ -158,7 +159,7 @@ ax1 = plt.subplot(gs[1])
 ax2 = plt.subplot(gs[0])
 ax3 = plt.subplot(gs[2])
 #plotPrecipitationBars(ax1, quantileData)
-plotPrecipitationVSUP(ax1, quantileData)
+plotPrecipitationVSUP(ax1, precipitationData)
 plotTemperature(ax2, quantileData)
 plotWindBft(ax3, quantileData)
 plt.gcf().autofmt_xdate()
