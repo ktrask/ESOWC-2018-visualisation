@@ -10,37 +10,6 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 
 
-def convertWindToBeaufort(v):
-    if v < 0.3:
-        bft = 0
-    elif v < 1.6:
-        bft = 1
-    elif v < 3.4:
-        bft = 2
-    elif v < 5.5:
-        bft = 3
-    elif v < 8.0:
-        bft = 4
-    elif v < 10.8:
-        bft = 5
-    elif v < 13.9:
-        bft = 6
-    elif v < 17.2:
-        bft = 7
-    elif v < 20.8:
-        bft = 8
-    elif v < 24.5:
-        bft = 9
-    elif v < 28.5:
-        bft = 10
-    elif v < 32.7:
-        bft = 11
-    else:
-        bft = 12
-    return bft
-#df['bft'] = [convertWindToBeaufort(i) for i in df['v'].tolist()]
-
-#quantileData = df.groupby('time').quantile([0,0.25,0.5,0.75,1])
 
 
 def plotTemperature(ax, qdata, fromIdx, toIdx):
@@ -52,13 +21,17 @@ def plotTemperature(ax, qdata, fromIdx, toIdx):
     ax.plot_date(x = dates[fromIdx:toIdx], y = np.array(qdata['2t']['median'][fromIdx:toIdx]) - 273.15, color="black", linestyle="solid", marker=None)
     ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
 
-def plotWindBft(ax, qdata):
-    #plots wind beaufort scale
-    bar050 = ax.bar(x=qdata['bft'][:,0.5].index,height=qdata['bft'][:,0.5],width = 0.2, color = "#2A7FFF")
-    bar075 = ax.bar(x=qdata['bft'][:,0.5].index,height=(qdata['bft'][:,0.75]-qdata['bft'][:,0.5]),width = 0.2, bottom = qdata['bft'][:,0.5], color = "#AACCFF")
-    bar100 = ax.bar(x=qdata['bft'][:,0.5].index,height=(qdata['bft'][:,1]-qdata['bft'][:,0.75]),width = 0.2, bottom = qdata['bft'][:,0.75], color = "#D5E5FF", alpha=0.5)
-    ax.set_ylim(0,10)
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+' bft'))
+def plotWindBft(ax, qdata, fromIdx, toIdx):
+    #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
+    vsupFilenames = ["Stufe1.png", "Stufe2_KaumWind.png", "Stufe2_vielWind.png", "Stufe3_Windstille.png", "Stufe3_leichterWind.png", "Stufe3_starkerWind.png", "Stufe3_Sturm.png"]
+    files = [vsupFilenames[getVSUPWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
+    image_path = './pictogram/wind/'
+    zoomFactor = 7.72 / (toIdx - fromIdx)
+    if zoomFactor > 0.9:
+        zoomFactor = 0.9
+    for (idx, filename) in zip(range(0,len(files)),files):
+        imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
+    ax.axis('off')
 
 def imscatter(x, y, image, ax=None, zoom=1):
     #taken from https://stackoverflow.com/questions/22566284/matplotlib-how-to-plot-images-instead-of-points
@@ -79,6 +52,25 @@ def imscatter(x, y, image, ax=None, zoom=1):
     ax.autoscale()
     return artists
 
+def getVSUPWindCoordinate(qdata):
+    #print(qdata)
+    #print(qdata[1])
+    if qdata['ninety'] < 3:#m/s
+        return(3)#no wind
+    if qdata['ten'] > 17.2:
+        return(6)#storm
+    if qdata['ten'] > 10 and qdata['ninety'] < 17.2:
+        return(5)#strong wind
+    #if qdata['ten'] > 10:
+    #    return(2)
+    if qdata['ninety'] < 10:
+        return(4)#light wind
+    if qdata['seventy_five'] < 10:
+        return(1)
+    if qdata['twenty_five'] > 10:
+        return(2)
+    return(0)
+
 def getVSUPrainCoordinate(qdata):
     #print(qdata)
     #print(qdata[1])
@@ -98,10 +90,9 @@ def getVSUPrainCoordinate(qdata):
         return(2)
     return(0)
 
-
 def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
-    vsupFilenames = ["Stufe1.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe2_Regen.png"]
+    vsupFilenames = ["Stufe1.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe3_Starkregen.png"]
     files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
     image_path = './pictogram/rain/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
@@ -147,17 +138,19 @@ if __name__ == '__main__':
             allMeteogramData['2t'] = json.load(fp)
         with open("data/tp-10days.json", "r") as fp:
             allMeteogramData['tp'] = json.load(fp)
+        with open("data/ws-10days.json", "r") as fp:
+            allMeteogramData['ws'] = json.load(fp)
     fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(3))
     plt.figure(figsize=(14,6))
     #plt.xkcd()
-    gs = gridspec.GridSpec(3, 1, height_ratios=[1, 2, 4])
+    gs = gridspec.GridSpec(3, 1, height_ratios=[2, 2, 4])
     ax1 = plt.subplot(gs[1])
     ax2 = plt.subplot(gs[0])
     ax3 = plt.subplot(gs[2])
     #plotPrecipitationBars(ax1, quantileData)
     plotPrecipitationVSUP(ax1, allMeteogramData['tp']['tp'], fromIndex, toIndex)
     plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex)
-    #plotWindBft(ax2, quantileData)
+    plotWindBft(ax2, allMeteogramData['ws']['ws'], fromIndex, toIndex)
     plt.gcf().autofmt_xdate()
     plt.savefig("./output/forecast.png", dpi = 300)
 
