@@ -2,27 +2,27 @@ from datetime import date, timedelta
 import time, json, sys
 from pathlib import Path
 from geopy.geocoders import Nominatim
-from tzwhere import tzwhere
 import asyncio, async_timeout, aiohttp
 import getopt
 
-home = str(Path.home())
-with open(home + "/.ecmwfapirc") as fp:
-    credentials = json.load(fp)
+try:
+    home = str(Path.home())
+    with open(home + "/.ecmwfapirc") as fp:
+        credentials = json.load(fp)
+except:
+    print("Could not read api credentials, put your credentials in a file .ecmwfapirc in your home directory.")
+    print("You can download the credentials from https://api.ecmwf.int/v1/key/")
+    sys.exit(2)
 
 #lat = random.randrange(-90, 90)
 #lon = random.randrange(-180, 180)
-yesterday = date.today() - timedelta(1)
+yesterday = date.today()
 
 api  = { "url": "https://api.ecmwf.int/v1/services/meteogram/requests/",
                  "token": credentials['key']}
-#Replace XXXX with your ECMWF token : Token can found at https://api.ecmwf.int/v1/key/
 
-allMeteogramData = {}
-latitude = 0
-longitude = 0
 
-async def getData(session, param):
+async def downloadData(session, param,allMeteogramData, longitude, latitude, writeToFile = True):
     with async_timeout.timeout(10):
         #Getting 2-metre temperature data ...
         request =  {
@@ -39,16 +39,17 @@ async def getData(session, param):
             jsonData = json.loads(jsonData)
             if jsonData:
                 outputFile = param + "-10days.json"
-                with open(outputFile, "w") as data :
-                    data.write(json.dumps(jsonData, indent=4, sort_keys=True))
+                if writeToFile:
+                    with open(outputFile, "w") as data :
+                        data.write(json.dumps(jsonData, indent=4, sort_keys=True))
                 allMeteogramData[param] = jsonData
             return await response.release()
 
 
-async def main(loop):
+async def main(loop, allMeteogramData, longitude, latitude, writeToFile = True):
     params = ["2t", "tp", "tcc", "ws", "sf"]
     async with aiohttp.ClientSession(loop=loop) as session:
-        tasks = [getData(session, param) for param in params]
+        tasks = [downloadData(session, param, allMeteogramData, longitude, latitude, writeToFile) for param in params]
         await asyncio.gather(*tasks)
 
 def getCoordinates(argv):
@@ -79,21 +80,27 @@ def getCoordinates(argv):
     else:
         location = "Braunschweig Germany"
         geolocator = Nominatim()
-        loc = geolocator.geocode(args)
+        loc = geolocator.geocode(location)
         latitude = loc.latitude
         longitude = loc.longitude
     return ( latitude, longitude )
-if __name__ == '__main__':
-    startTime = time.time()
-    tz = tzwhere.tzwhere()
-    latitude, longitude = getCoordinates(sys.argv[1:])
-    timezone = tz.tzNameAt(latitude, longitude)
-    midTime = time.time()
+
+def getData(longitude, latitude, writeToFile = True):
+    allMeteogramData = {}
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(loop))
+    loop.run_until_complete(main(loop, allMeteogramData, longitude, latitude,  writeToFile))
+    return allMeteogramData
+
+if __name__ == '__main__':
+    latitude = 0
+    longitude = 0
+    startTime = time.time()
+    latitude, longitude = getCoordinates(sys.argv[1:])
+    midTime = time.time()
     print(latitude)
     print(longitude)
-    #print(allMeteogramData)
+    allMeteogramData = getData(longitude, latitude)
+    print(allMeteogramData)
     endTime = time.time()
     print("starting up: ", midTime-startTime)
     print("downloading: ", endTime-midTime)

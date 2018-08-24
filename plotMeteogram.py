@@ -1,59 +1,15 @@
-from netCDF4 import Dataset
 import numpy as np
 import pandas as pd
 import datetime
+import sys
 import json
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-
-nc_f = './forecast.nc'  # Your filename
-nc_fid = Dataset(nc_f, 'r')  # Dataset is the class behavior to open the file
-nc_precip = Dataset('./precip.nc', 'r')
-#print(nc_fid)
-
-def getNearestLatIndex(lat):
-    return (abs(nc_fid.variables['latitude'][:] - lat)).argmin()
-def getNearestLonIndex(lon):
-    return (abs(nc_fid.variables['longitude'][:] - lon)).argmin()
+from downloadJsonData import getData, getCoordinates
 
 
-print(getNearestLatIndex(52))#52°N
-print(getNearestLonIndex(10))#10°E
-lat = getNearestLatIndex(52)#52°N
-lon = getNearestLonIndex(10)#10°E
-nc_fid.variables['longitude'][:]
-
-with open("2t-10days.json", "r") as fp:
-    temperatureData = json.load(fp)
-with open("tp-10days.json", "r") as fp:
-    precipitationData = json.load(fp)
-
-
-df = pd.DataFrame(data = {'T'  : [],
-                          'u10': [],
-                          'v10': [],
-                          'lcc': [],
-                          'mcc': [],
-                          'hcc': [],
-                          'lsp': []
-                 })
-for i in range(0,len(nc_fid.variables['number'])):
-    dfTmp = pd.DataFrame(data = {
-                          'time': nc_fid.variables['time'][:40],
-                          'number': [i for _ in range(0,40)],
-                          'T'  : nc_fid.variables['t2m'][:40,i,lat,lon]-273.15,
-                          'u10': nc_fid.variables['u10'][:40,i,lat,lon],
-                          'v10': nc_fid.variables['v10'][:40,i,lat,lon],
-                          'lcc': nc_fid.variables['lcc'][:40,i,lat,lon],
-                          'mcc': nc_fid.variables['mcc'][:40,i,lat,lon],
-                          'hcc': nc_fid.variables['hcc'][:40,i,lat,lon],
-                          'lsp': nc_precip.variables['lsp'][:40,i,lat,lon]
-                 })
-    df = df.append(dfTmp)
-df.time = [datetime.datetime(1900, 1, 1) + datetime.timedelta(hours=time) for time in df.time]
-df['v'] = np.sqrt(df['v10']**2+df['u10']**2)
 
 def convertWindToBeaufort(v):
     if v < 0.3:
@@ -83,9 +39,9 @@ def convertWindToBeaufort(v):
     else:
         bft = 12
     return bft
-df['bft'] = [convertWindToBeaufort(i) for i in df['v'].tolist()]
+#df['bft'] = [convertWindToBeaufort(i) for i in df['v'].tolist()]
 
-quantileData = df.groupby('time').quantile([0,0.25,0.5,0.75,1])
+#quantileData = df.groupby('time').quantile([0,0.25,0.5,0.75,1])
 
 
 def plotTemperature(ax, qdata):
@@ -147,41 +103,33 @@ def getVSUPrainCoordinate(qdata):
 def plotPrecipitationVSUP(ax, qdata):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
     vsupFilenames = ["Stufe1.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe2_Regen.png"]
-    files = [vsupFilenames[getVSUPrainCoordinate({key: qdata['tp'][key][i] for key in qdata['tp']})] for i in range(0,len(qdata['tp']['ten']))]
+    files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(0,len(qdata['ten']))]
     image_path = './pictogram/rain/'
     #for (date, filename) in zip(qdata['lsp'][:, :].index.levels[0],files):
     for (date, filename) in zip(range(0,len(files)),files):
         imscatter(date,1, image_path+filename, ax=ax, zoom = 0.2)
 
 
+if __name__ == '__main__':
+    if len(sys.argv) > 1 :
+        latitude, longitude = getCoordinates(sys.argv[1:])
+        allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
+    else:
+        allMeteogramData = {}
+        with open("2t-10days.json", "r") as fp:
+            allMeteogramData['2t'] = json.load(fp)
+        with open("tp-10days.json", "r") as fp:
+            allMeteogramData['tp'] = json.load(fp)
+    plt.figure(figsize=(14,6))
+    #plt.xkcd()
+    gs = gridspec.GridSpec(3, 1, height_ratios=[1, 2, 4]) 
+    ax1 = plt.subplot(gs[1])
+    ax2 = plt.subplot(gs[0])
+    ax3 = plt.subplot(gs[2])
+    #plotPrecipitationBars(ax1, quantileData)
+    plotPrecipitationVSUP(ax1, allMeteogramData['tp']['tp'])
+    plotTemperature(ax3, allMeteogramData['2t'])
+    #plotWindBft(ax2, quantileData)
+    plt.gcf().autofmt_xdate()
+    plt.savefig("./output/forecast.png", dpi = 300)
 
-plt.figure(figsize=(14,6))
-#plt.xkcd()
-gs = gridspec.GridSpec(3, 1, height_ratios=[1, 2, 4]) 
-ax1 = plt.subplot(gs[1])
-ax2 = plt.subplot(gs[0])
-ax3 = plt.subplot(gs[2])
-#plotPrecipitationBars(ax1, quantileData)
-plotPrecipitationVSUP(ax1, precipitationData)
-plotTemperature(ax3, temperatureData)
-#plotWindBft(ax2, quantileData)
-plt.gcf().autofmt_xdate()
-plt.savefig("./output/forecast.png", dpi = 300)
-
-#plot ensemble members:
-#for ens in range(0,50):
-#    plt.figure(figsize=(14,6))
-#    gs = gridspec.GridSpec(3, 1, height_ratios=[4, 2, 1]) 
-#    ax1 = plt.subplot(gs[1])
-#    ax2 = plt.subplot(gs[0])
-#    ax3 = plt.subplot(gs[2])
-#    plotPrecipitationBars(ax1, quantileData)
-#    plotTemperature(ax2, quantileData)
-#    plotWindBft(ax3, quantileData)
-#    tmp = df.loc[df['number'] == ens]
-#    ax2.plot(tmp['time'], tmp['T'], color = "r")
-#    ax1.plot(tmp['time'], tmp['lsp']*1e3, color = "r")    
-#    ax3.plot(tmp['time'], tmp['bft'], color = "r")
-#    plt.gcf().autofmt_xdate()
-#    plt.savefig("./output/forecast" + str(ens).zfill(2) + ".png")
-#    plt.close()
