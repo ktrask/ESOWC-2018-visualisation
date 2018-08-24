@@ -89,9 +89,12 @@ quantileData = df.groupby('time').quantile([0,0.25,0.5,0.75,1])
 
 
 def plotTemperature(ax, qdata):
-    ax.fill_between(x= qdata['T'][:,0.75].index, y1=qdata['T'][:,0] , y2=qdata['T'][:,1], color="lightblue", alpha = 0.5)
-    ax.fill_between(x= qdata['T'][:,0.75].index, y1=qdata['T'][:,0.25] , y2=qdata['T'][:,0.75], color="blue", alpha = 0.5)
-    ax.plot(quantileData['T'][:,0.5], color="black")
+    startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
+    dates = [startDate + datetime.timedelta(hours=int(i)) for i in qdata['2t']['steps']]
+    ax.fill_between(x= dates, y1=np.array(qdata['2t']['min'])-273.15, y2=np.array(qdata['2t']['max'])-273.15, color="lightblue", alpha = 0.5)
+    ax.fill_between(x= dates, y1=np.array(qdata['2t']['twenty_five'])-273.15 , y2=np.array(qdata['2t']['seventy_five'])-273.15, color="blue", alpha = 0.5)
+    #ax.plot(x = dates, y = np.array(qdata['2t']['median']) - 273.15, color="green")
+    ax.plot_date(x = dates, y = np.array(qdata['2t']['median']) - 273.15, color="black", linestyle="solid", marker=None)
     ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
 
 def plotWindBft(ax, qdata):
@@ -154,16 +157,16 @@ def plotPrecipitationVSUP(ax, qdata):
 
 plt.figure(figsize=(14,6))
 #plt.xkcd()
-gs = gridspec.GridSpec(3, 1, height_ratios=[4, 2, 1]) 
+gs = gridspec.GridSpec(3, 1, height_ratios=[1, 2, 4]) 
 ax1 = plt.subplot(gs[1])
 ax2 = plt.subplot(gs[0])
 ax3 = plt.subplot(gs[2])
 #plotPrecipitationBars(ax1, quantileData)
 plotPrecipitationVSUP(ax1, precipitationData)
-plotTemperature(ax2, quantileData)
-plotWindBft(ax3, quantileData)
+plotTemperature(ax3, temperatureData)
+#plotWindBft(ax2, quantileData)
 plt.gcf().autofmt_xdate()
-plt.savefig("./output/forecast.png")
+plt.savefig("./output/forecast.png", dpi = 300)
 
 #plot ensemble members:
 #for ens in range(0,50):
