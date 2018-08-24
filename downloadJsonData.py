@@ -40,7 +40,7 @@ async def downloadData(session, param,allMeteogramData, longitude, latitude, wri
             if jsonData:
                 outputFile = param + "-10days.json"
                 if writeToFile:
-                    with open(outputFile, "w") as data :
+                    with open("data/" + outputFile, "w") as data :
                         data.write(json.dumps(jsonData, indent=4, sort_keys=True))
                 allMeteogramData[param] = jsonData
             return await response.release()

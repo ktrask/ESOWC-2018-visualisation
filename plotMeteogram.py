@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-from downloadJsonData import getData, getCoordinates
 
 
 
@@ -112,13 +111,14 @@ def plotPrecipitationVSUP(ax, qdata):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 :
+        from downloadJsonData import getData, getCoordinates
         latitude, longitude = getCoordinates(sys.argv[1:])
         allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
     else:
         allMeteogramData = {}
-        with open("2t-10days.json", "r") as fp:
+        with open("data/2t-10days.json", "r") as fp:
             allMeteogramData['2t'] = json.load(fp)
-        with open("tp-10days.json", "r") as fp:
+        with open("data/tp-10days.json", "r") as fp:
             allMeteogramData['tp'] = json.load(fp)
     plt.figure(figsize=(14,6))
     #plt.xkcd()
