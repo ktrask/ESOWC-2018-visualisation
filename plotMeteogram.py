@@ -104,8 +104,12 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx):
     vsupFilenames = ["Stufe1.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe2_Regen.png"]
     files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
     image_path = './pictogram/rain/'
+    zoomFactor = 7.72 / (toIdx - fromIdx)
+    if zoomFactor > 0.9:
+        zoomFactor = 0.9
     for (idx, filename) in zip(range(0,len(files)),files):
-        imscatter(idx,1, image_path+filename, ax=ax, zoom = 0.2)
+        imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
+    ax.axis('off')
 
 
 def getTimeFrame(allMeteogramData,fromDate, toDate):
