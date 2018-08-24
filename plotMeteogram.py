@@ -44,6 +44,22 @@ def getNumberedHours(fromDate, toDate):
         numberedDates.append(newDate)
     return(numberedDates[:-1])
 
+def getWeekdayString(day):
+    print(day)
+    if day == 0:
+        return "Monday"
+    if day == 1:
+        return "Tuesday"
+    if day == 2:
+        return "Wednesday"
+    if day == 3:
+        return "Thursday"
+    if day == 4:
+        return "Friday"
+    if day == 5:
+        return "Saturday"
+    if day == 6:
+        return "Sunday"
 
 def plotTemperature(ax, qdata, fromIdx, toIdx):
     startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
@@ -61,6 +77,9 @@ def plotTemperature(ax, qdata, fromIdx, toIdx):
     ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
     for hour in numberedHours:
         ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center")
+    for hour in numberedHours:
+        if hour.hour == 12:
+            ax.text(hour, ymin-2, getWeekdayString(hour.weekday()), horizontalalignment = "center")
     #ax.axis('off')
     #ax.box(on=None)
     ax.get_xaxis().set_visible(False)
