@@ -64,25 +64,59 @@ def getWeekdayString(day):
 def plotTemperature(ax, qdata, fromIdx, toIdx):
     startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
     dates = [startDate + datetime.timedelta(hours=int(i)) for i in qdata['2t']['steps']]
-    ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['min'][fromIdx:toIdx])-273.15, y2=np.array(qdata['2t']['max'][fromIdx:toIdx])-273.15, color="lightblue", alpha = 0.5)
-    ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['twenty_five'][fromIdx:toIdx])-273.15 , y2=np.array(qdata['2t']['seventy_five'][fromIdx:toIdx])-273.15, color="blue", alpha = 0.5)
-    #ax.plot(x = dates, y = np.array(qdata['2t']['median']) - 273.15, color="green")
-    ax.plot_date(x = dates[fromIdx:toIdx], y = np.array(qdata['2t']['median'][fromIdx:toIdx]) - 273.15, color="black", linestyle="solid", marker=None)
+    #convert temperatures to numpy arrays:
+    temps = {}
+    temps['min'] = np.array(qdata['2t']['min']) - 273.15
+    temps['max'] = np.array(qdata['2t']['max']) - 273.15
+    temps['median'] = np.array(qdata['2t']['median']) - 273.15
+    temps['twenty_five'] = np.array(qdata['2t']['twenty_five']) - 273.15
+    temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
+    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="lightblue", alpha = 0.5)
+    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="blue", alpha = 0.5)
+    ax.plot_date(x = dates[fromIdx:toIdx], y = temps['median'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
+    #ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['min'][fromIdx:toIdx])-273.15, y2=np.array(qdata['2t']['max'][fromIdx:toIdx])-273.15, color="lightblue", alpha = 0.5)
+    #ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['twenty_five'][fromIdx:toIdx])-273.15 , y2=np.array(qdata['2t']['seventy_five'][fromIdx:toIdx])-273.15, color="blue", alpha = 0.5)
+    #ax.plot_date(x = dates[fromIdx:toIdx], y = np.array(qdata['2t']['median'][fromIdx:toIdx]) - 273.15, color="black", linestyle="solid", marker=None)
     dottedHours = getDottedHours(dates[fromIdx], dates[toIdx-1])
     ymin, ymax = ax.get_ylim()
     #print(dottedHours)
     ax.vlines(dottedHours, ymin, ymax, linestyle = ':', color = "gray")
     numberedHours = getNumberedHours(dates[fromIdx], dates[toIdx-1])
     print(numberedHours)
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
+    #ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
     for hour in numberedHours:
         ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center")
-    for hour in numberedHours:
+        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "top")
         if hour.hour == 12:
             ax.text(hour, ymin-2, getWeekdayString(hour.weekday()), horizontalalignment = "center")
-    #ax.axis('off')
+    ax.axis('off')
     #ax.box(on=None)
-    ax.get_xaxis().set_visible(False)
+    #ax.get_xaxis().set_visible(False)
+    localMinima = np.r_[True, temps['median'][1:] < temps['median'][:-1]] & np.r_[temps['median'][:-1] < temps['median'][1:], True]
+    #print(localMinima)
+    print(np.r_[temps['median'][1:] < temps['median'][:-1]])
+    print(np.r_[temps['median'][:-1] < temps['median'][1:]])
+    localMaxima = np.r_[True, temps['median'][1:] > temps['median'][:-1]] & np.r_[temps['median'][:-1] > temps['median'][1:], True]
+    #print(localMaxima)
+    for i in range(fromIdx,toIdx):
+        if localMinima[i]:
+            date = dates[i]
+            temp = temps['median'][i]
+            #print(date)
+            ax.scatter(date, temp - 2, s=300, color = "darkcyan")
+            ax.text(date, temp - 2, str(int(np.round(temp))),
+                    horizontalalignment = "center",
+                    verticalalignment = "center",
+                    color = 'white')
+        if localMaxima[i]:
+            date = dates[i]
+            temp = temps['median'][i]
+            #print(date)
+            ax.scatter(date, temp + 2, s=300, color = "orange")
+            ax.text(date, temp + 2, str(int(np.round(temp))),
+                    horizontalalignment = "center",
+                    verticalalignment = "center",
+                    color = "white")
 
 def plotWindBft(ax, qdata, fromIdx, toIdx):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
