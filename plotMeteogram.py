@@ -43,13 +43,13 @@ def convertWindToBeaufort(v):
 #quantileData = df.groupby('time').quantile([0,0.25,0.5,0.75,1])
 
 
-def plotTemperature(ax, qdata):
+def plotTemperature(ax, qdata, fromIdx, toIdx):
     startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
     dates = [startDate + datetime.timedelta(hours=int(i)) for i in qdata['2t']['steps']]
-    ax.fill_between(x= dates, y1=np.array(qdata['2t']['min'])-273.15, y2=np.array(qdata['2t']['max'])-273.15, color="lightblue", alpha = 0.5)
-    ax.fill_between(x= dates, y1=np.array(qdata['2t']['twenty_five'])-273.15 , y2=np.array(qdata['2t']['seventy_five'])-273.15, color="blue", alpha = 0.5)
+    ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['min'][fromIdx:toIdx])-273.15, y2=np.array(qdata['2t']['max'][fromIdx:toIdx])-273.15, color="lightblue", alpha = 0.5)
+    ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['twenty_five'][fromIdx:toIdx])-273.15 , y2=np.array(qdata['2t']['seventy_five'][fromIdx:toIdx])-273.15, color="blue", alpha = 0.5)
     #ax.plot(x = dates, y = np.array(qdata['2t']['median']) - 273.15, color="green")
-    ax.plot_date(x = dates, y = np.array(qdata['2t']['median']) - 273.15, color="black", linestyle="solid", marker=None)
+    ax.plot_date(x = dates[fromIdx:toIdx], y = np.array(qdata['2t']['median'][fromIdx:toIdx]) - 273.15, color="black", linestyle="solid", marker=None)
     ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
 
 def plotWindBft(ax, qdata):
@@ -99,17 +99,40 @@ def getVSUPrainCoordinate(qdata):
     return(0)
 
 
-def plotPrecipitationVSUP(ax, qdata):
+def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
     vsupFilenames = ["Stufe1.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe2_Regen.png"]
-    files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(0,len(qdata['ten']))]
+    files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
     image_path = './pictogram/rain/'
-    #for (date, filename) in zip(qdata['lsp'][:, :].index.levels[0],files):
-    for (date, filename) in zip(range(0,len(files)),files):
-        imscatter(date,1, image_path+filename, ax=ax, zoom = 0.2)
+    for (idx, filename) in zip(range(0,len(files)),files):
+        imscatter(idx,1, image_path+filename, ax=ax, zoom = 0.2)
 
+
+def getTimeFrame(allMeteogramData,fromDate, toDate):
+    qdata = allMeteogramData['2t']
+    startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
+    dates = [startDate + datetime.timedelta(hours=int(i)) for i in qdata['2t']['steps']]
+    fromIndex = 0
+    if fromDate:
+        for date in dates:
+            if date < fromDate:
+                fromIndex += 1
+            else:
+                break
+    toIndex = len(allMeteogramData['2t']['2t']['steps'])
+    if toDate:
+        for date in dates[::-1]:
+            if date < toDate:
+                break
+            else:
+                toIndex -= 1
+    print(toIndex)
+    print(fromIndex)
+    return (fromIndex, toIndex)
 
 if __name__ == '__main__':
+    #today = datetime.date.today()
+    today = datetime.datetime.today()
     if len(sys.argv) > 1 :
         from downloadJsonData import getData, getCoordinates
         latitude, longitude = getCoordinates(sys.argv[1:])
@@ -120,15 +143,16 @@ if __name__ == '__main__':
             allMeteogramData['2t'] = json.load(fp)
         with open("data/tp-10days.json", "r") as fp:
             allMeteogramData['tp'] = json.load(fp)
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(3))
     plt.figure(figsize=(14,6))
     #plt.xkcd()
-    gs = gridspec.GridSpec(3, 1, height_ratios=[1, 2, 4]) 
+    gs = gridspec.GridSpec(3, 1, height_ratios=[1, 2, 4])
     ax1 = plt.subplot(gs[1])
     ax2 = plt.subplot(gs[0])
     ax3 = plt.subplot(gs[2])
     #plotPrecipitationBars(ax1, quantileData)
-    plotPrecipitationVSUP(ax1, allMeteogramData['tp']['tp'])
-    plotTemperature(ax3, allMeteogramData['2t'])
+    plotPrecipitationVSUP(ax1, allMeteogramData['tp']['tp'], fromIndex, toIndex)
+    plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex)
     #plotWindBft(ax2, quantileData)
     plt.gcf().autofmt_xdate()
     plt.savefig("./output/forecast.png", dpi = 300)
