@@ -130,8 +130,8 @@ def plotWindBft(ax, qdata, fromIdx, toIdx):
     files = [vsupFilenames[getVSUPWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
     image_path = './pictogram/wind/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.9:
-        zoomFactor = 0.9
+    if zoomFactor > 0.5:
+        zoomFactor = 0.5
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
@@ -142,8 +142,8 @@ def plotCloudVSUP(ax, qdata, fromIdx, toIdx):
     files = [vsupFilenames[getVSUPCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
     image_path = './pictogram/cloud/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.9:
-        zoomFactor = 0.9
+    if zoomFactor > 0.5:
+        zoomFactor = 0.5
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
@@ -230,8 +230,9 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx):
     files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
     image_path = './pictogram/rain/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.9:
-        zoomFactor = 0.9
+    if zoomFactor > 0.5:
+        zoomFactor = 0.5
+    print(zoomFactor)
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
@@ -297,7 +298,7 @@ if __name__ == '__main__':
             allMeteogramData['tcc'] = json.load(fp)
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(1))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     #plt.gcf().autofmt_xdate()
