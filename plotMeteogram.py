@@ -84,6 +84,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     #ax.plot_date(x = dates[fromIdx:toIdx], y = np.array(qdata['2t']['median'][fromIdx:toIdx]) - 273.15, color="black", linestyle="solid", marker=None)
     dottedHours = getDottedHours(dates[fromIdx], dates[toIdx-1])
     ymin, ymax = ax.get_ylim()
+    yscale = (ymax-ymin)/7
     #print(dottedHours)
     ax.vlines(dottedHours, ymin, ymax, linestyle = ':', color = "gray")
     numberedHours = getNumberedHours(dates[fromIdx], dates[toIdx-1])
@@ -93,7 +94,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
         ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center")
         ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "top")
         if hour.hour == 12:
-            ax.text(hour, ymin-2, getWeekdayString(hour.weekday()), horizontalalignment = "center")
+            ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center")
     ax.axis('off')
     #ax.box(on=None)
     #ax.get_xaxis().set_visible(False)
@@ -108,8 +109,8 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
             date = dates[i]
             temp = temps['median'][i]
             #print(date)
-            ax.scatter(date, temp - 2, s=300, color = "darkcyan")
-            ax.text(date, temp - 2, str(int(np.round(temp))),
+            ax.scatter(date, temp - yscale, s=300, color = "darkcyan")
+            ax.text(date, temp - yscale, str(int(np.round(temp))),
                     horizontalalignment = "center",
                     verticalalignment = "center",
                     color = 'white')
@@ -117,8 +118,8 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
             date = dates[i]
             temp = temps['median'][i]
             #print(date)
-            ax.scatter(date, temp + 2, s=300, color = "orange")
-            ax.text(date, temp + 2, str(int(np.round(temp))),
+            ax.scatter(date, temp + yscale, s=300, color = "orange")
+            ax.text(date, temp + yscale, str(int(np.round(temp))),
                     horizontalalignment = "center",
                     verticalalignment = "center",
                     color = "white")
@@ -296,7 +297,7 @@ if __name__ == '__main__':
             allMeteogramData['tcc'] = json.load(fp)
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(4))
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     #plt.gcf().autofmt_xdate()
