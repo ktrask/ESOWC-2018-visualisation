@@ -94,8 +94,8 @@ def plotTemperature(ax, qdata, fromIdx, toIdx):
     #ax.get_xaxis().set_visible(False)
     localMinima = np.r_[True, temps['median'][1:] < temps['median'][:-1]] & np.r_[temps['median'][:-1] < temps['median'][1:], True]
     #print(localMinima)
-    print(np.r_[temps['median'][1:] < temps['median'][:-1]])
-    print(np.r_[temps['median'][:-1] < temps['median'][1:]])
+    #print(np.r_[temps['median'][1:] < temps['median'][:-1]])
+    #print(np.r_[temps['median'][:-1] < temps['median'][1:]])
     localMaxima = np.r_[True, temps['median'][1:] > temps['median'][:-1]] & np.r_[temps['median'][:-1] > temps['median'][1:], True]
     #print(localMaxima)
     for i in range(fromIdx,toIdx):
@@ -130,6 +130,18 @@ def plotWindBft(ax, qdata, fromIdx, toIdx):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
 
+def plotCloudVSUP(ax, qdata, fromIdx, toIdx):
+    #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
+    vsupFilenames = ["Stufe1.png", "Stufe2_eherSonnig.png", "Stufe2_eherBewoelkt.png", "Stufe3_klarerHimmel.png", "Stufe3_leichtBedeckt.png", "Stufe3_mittlereBewoelkung.png", "Stufe3_startBewoelkt.png"]
+    files = [vsupFilenames[getVSUPCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
+    image_path = './pictogram/cloud/'
+    zoomFactor = 7.72 / (toIdx - fromIdx)
+    if zoomFactor > 0.9:
+        zoomFactor = 0.9
+    for (idx, filename) in zip(range(0,len(files)),files):
+        imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
+    ax.axis('off')
+
 def imscatter(x, y, image, ax=None, zoom=1):
     #taken from https://stackoverflow.com/questions/22566284/matplotlib-how-to-plot-images-instead-of-points
     if ax is None:
@@ -148,6 +160,25 @@ def imscatter(x, y, image, ax=None, zoom=1):
     ax.update_datalim(np.column_stack([x, y]))
     ax.autoscale()
     return artists
+
+def getVSUPCloudCoordinate(qdata):
+    #print(qdata)
+    #print(qdata[1])
+    if qdata['ninety'] < 0.1:#m/s
+        return(3)#no cloud
+    if qdata['ten'] > 0.9:
+        return(6)#all cloudy
+    if qdata['ten'] > 0.5 and qdata['ninety'] < 0.95:
+        return(5)#lot of clouds
+    #if qdata['ten'] > 10:
+    #    return(2)
+    if qdata['ninety'] < 0.5:
+        return(4)#light clouds
+    if qdata['seventy_five'] < 0.7:
+        return(1)
+    if qdata['twenty_five'] > 0.3:
+        return(2)
+    return(0)
 
 def getVSUPWindCoordinate(qdata):
     #print(qdata)
@@ -201,6 +232,7 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx):
 
 
 def getTimeFrame(allMeteogramData,fromDate, toDate):
+    #print(allMeteogramData)
     qdata = allMeteogramData['2t']
     startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
     dates = [startDate + datetime.timedelta(hours=int(i)) for i in qdata['2t']['steps']]
@@ -218,9 +250,24 @@ def getTimeFrame(allMeteogramData,fromDate, toDate):
                 break
             else:
                 toIndex -= 1
-    print(toIndex)
-    print(fromIndex)
+    #print(toIndex)
+    #print(fromIndex)
     return (fromIndex, toIndex)
+
+def plotMeteogram(allMeteogramData, fromIndex, toIndex):
+    plt.figure(figsize=(14,6))
+    #plt.xkcd()
+    gs = gridspec.GridSpec(4, 1, height_ratios=[1, 1, 4, 1])
+    ax1 = plt.subplot(gs[0])
+    ax2 = plt.subplot(gs[1])
+    ax3 = plt.subplot(gs[2])
+    ax4 = plt.subplot(gs[3])
+    #plotPrecipitationBars(ax1, quantileData)
+    plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex)
+    plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex)
+    plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex)
+    plotWindBft(ax4, allMeteogramData['ws']['ws'], fromIndex, toIndex)
+
 
 if __name__ == '__main__':
     #today = datetime.date.today()
@@ -237,17 +284,11 @@ if __name__ == '__main__':
             allMeteogramData['tp'] = json.load(fp)
         with open("data/ws-10days.json", "r") as fp:
             allMeteogramData['ws'] = json.load(fp)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(4))
-    plt.figure(figsize=(14,6))
-    #plt.xkcd()
-    gs = gridspec.GridSpec(3, 1, height_ratios=[1, 1, 4])
-    ax1 = plt.subplot(gs[1])
-    ax2 = plt.subplot(gs[0])
-    ax3 = plt.subplot(gs[2])
-    #plotPrecipitationBars(ax1, quantileData)
-    plotPrecipitationVSUP(ax1, allMeteogramData['tp']['tp'], fromIndex, toIndex)
-    plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex)
-    plotWindBft(ax2, allMeteogramData['ws']['ws'], fromIndex, toIndex)
+        with open("data/tcc-10days.json", "r") as fp:
+            allMeteogramData['tcc'] = json.load(fp)
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
+    plotMeteogram(allMeteogramData, fromIndex, toIndex)
+    #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     #plt.gcf().autofmt_xdate()
     plt.savefig("./output/forecast.png", dpi = 300)
 

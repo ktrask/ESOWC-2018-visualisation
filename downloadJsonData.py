@@ -16,7 +16,7 @@ except:
 
 #lat = random.randrange(-90, 90)
 #lon = random.randrange(-180, 180)
-yesterday = date.today()
+yesterday = date.today() - timedelta(1)
 
 api  = { "url": "https://api.ecmwf.int/v1/services/meteogram/requests/",
                  "token": credentials['key']}
@@ -72,6 +72,7 @@ def getCoordinates(argv):
                 loc = geolocator.geocode(arg)
                 latitude = loc.latitude
                 longitude = loc.longitude
+                print(latitude, longitude)
             elif opt == "--lat":
                 latitude = float(arg)
             elif opt == "--lon":
