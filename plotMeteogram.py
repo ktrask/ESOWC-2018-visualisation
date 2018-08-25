@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-
-
+from tzwhere import tzwhere
+import pytz
 
 def getNextDottedHour(hour):
     if hour < 2:
@@ -24,11 +24,13 @@ def getNextDottedHour(hour):
 def getDottedHours(fromDate, toDate):
     newDate = fromDate
     dottedDates = []
+    #print(newDate)
+    #print(toDate)
     while newDate < toDate:
         try:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, getNextDottedHour(newDate.hour))
+            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, getNextDottedHour(newDate.hour),tzinfo=toDate.tzinfo)
         except ValueError:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 2) + datetime.timedelta(1)
+            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 2,tzinfo=toDate.tzinfo) + datetime.timedelta(1)
         dottedDates.append(newDate)
     return(dottedDates[:-1])
 
@@ -38,14 +40,14 @@ def getNumberedHours(fromDate, toDate):
     numberedDates = []
     while newDate < toDate:
         if newDate.hour < 12:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 12)
+            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 12,tzinfo=toDate.tzinfo)
         else:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 0) + datetime.timedelta(1)
+            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 0,tzinfo=toDate.tzinfo) + datetime.timedelta(1)
         numberedDates.append(newDate)
     return(numberedDates[:-1])
 
 def getWeekdayString(day):
-    print(day)
+    #print(day)
     if day == 0:
         return "Monday"
     if day == 1:
@@ -61,8 +63,11 @@ def getWeekdayString(day):
     if day == 6:
         return "Sunday"
 
-def plotTemperature(ax, qdata, fromIdx, toIdx):
+def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
+    startDate = pytz.timezone('UTC').localize(startDate)
+    if tzName:
+        startDate = startDate.astimezone(pytz.timezone(tzName))
     dates = [startDate + datetime.timedelta(hours=int(i)) for i in qdata['2t']['steps']]
     #convert temperatures to numpy arrays:
     temps = {}
@@ -82,7 +87,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx):
     #print(dottedHours)
     ax.vlines(dottedHours, ymin, ymax, linestyle = ':', color = "gray")
     numberedHours = getNumberedHours(dates[fromIdx], dates[toIdx-1])
-    print(numberedHours)
+    #print(numberedHours)
     #ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
     for hour in numberedHours:
         ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center")
@@ -132,7 +137,7 @@ def plotWindBft(ax, qdata, fromIdx, toIdx):
 
 def plotCloudVSUP(ax, qdata, fromIdx, toIdx):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
-    vsupFilenames = ["Stufe1.png", "Stufe2_eherSonnig.png", "Stufe2_eherBewoelkt.png", "Stufe3_klarerHimmel.png", "Stufe3_leichtBedeckt.png", "Stufe3_mittlereBewoelkung.png", "Stufe3_startBewoelkt.png"]
+    vsupFilenames = ["Stufe1.png", "Stufe2_eherSonnig.png", "Stufe2_eherBewoelkt.png", "Stufe3_klarerHimmel.png", "Stufe3_leichtBedeckt.png", "Stufe3_mittlereBewoelkung.png", "Stufe3_starkBewoelkt.png"]
     files = [vsupFilenames[getVSUPCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
     image_path = './pictogram/cloud/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
@@ -254,29 +259,32 @@ def getTimeFrame(allMeteogramData,fromDate, toDate):
     #print(fromIndex)
     return (fromIndex, toIndex)
 
-def plotMeteogram(allMeteogramData, fromIndex, toIndex):
-    plt.figure(figsize=(14,6))
+def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName):
+    fig = plt.figure(figsize=(14,6))
     #plt.xkcd()
     gs = gridspec.GridSpec(4, 1, height_ratios=[1, 1, 4, 1])
-    ax1 = plt.subplot(gs[0])
-    ax2 = plt.subplot(gs[1])
-    ax3 = plt.subplot(gs[2])
-    ax4 = plt.subplot(gs[3])
+    ax1 = fig.add_subplot(gs[0])
+    ax2 = fig.add_subplot(gs[1])
+    ax3 = fig.add_subplot(gs[2])
+    ax4 = fig.add_subplot(gs[3])
     #plotPrecipitationBars(ax1, quantileData)
     plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex)
     plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex)
-    plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex)
+    plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName)
     plotWindBft(ax4, allMeteogramData['ws']['ws'], fromIndex, toIndex)
+    return fig
 
 
 if __name__ == '__main__':
     #today = datetime.date.today()
-    today = datetime.datetime.today()
+    today = datetime.datetime.utcnow()
     if len(sys.argv) > 1 :
         from downloadJsonData import getData, getCoordinates
         latitude, longitude = getCoordinates(sys.argv[1:])
         allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
     else:
+        latitude = 52.2646577
+        longitude = 10.5236066
         allMeteogramData = {}
         with open("data/2t-10days.json", "r") as fp:
             allMeteogramData['2t'] = json.load(fp)
@@ -286,9 +294,11 @@ if __name__ == '__main__':
             allMeteogramData['ws'] = json.load(fp)
         with open("data/tcc-10days.json", "r") as fp:
             allMeteogramData['tcc'] = json.load(fp)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
-    plotMeteogram(allMeteogramData, fromIndex, toIndex)
+    tz = tzwhere.tzwhere()
+    tzName = tz.tzNameAt(latitude, longitude)
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(4))
+    fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     #plt.gcf().autofmt_xdate()
-    plt.savefig("./output/forecast.png", dpi = 300)
+    fig.savefig("./output/forecast.png", dpi = 300)
 

@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import time, json, sys
 from pathlib import Path
 from geopy.geocoders import Nominatim
@@ -16,7 +16,7 @@ except:
 
 #lat = random.randrange(-90, 90)
 #lon = random.randrange(-180, 180)
-yesterday = date.today() - timedelta(1)
+yesterday = datetime.utcnow() - timedelta(1)
 
 api  = { "url": "https://api.ecmwf.int/v1/services/meteogram/requests/",
                  "token": credentials['key']}
