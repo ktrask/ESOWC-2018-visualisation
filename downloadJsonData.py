@@ -88,8 +88,12 @@ def getCoordinates(argv):
 
 def getData(longitude, latitude, writeToFile = True):
     allMeteogramData = {}
-    loop = asyncio.get_event_loop()
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
     loop.run_until_complete(main(loop, allMeteogramData, longitude, latitude,  writeToFile))
+    loop.close()
     return allMeteogramData
 
 if __name__ == '__main__':

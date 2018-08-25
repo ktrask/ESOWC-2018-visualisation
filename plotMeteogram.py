@@ -3,12 +3,16 @@ import pandas as pd
 import datetime
 import sys
 import json
+import matplotlib
+matplotlib.use('Agg')#use Agg because default is tkinter and its not threadsafe
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib import offsetbox
 from tzwhere import tzwhere
 import pytz
+
 
 def getNextDottedHour(hour):
     if hour < 2:
@@ -148,6 +152,7 @@ def plotCloudVSUP(ax, qdata, fromIdx, toIdx):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
 
+
 def imscatter(x, y, image, ax=None, zoom=1):
     #taken from https://stackoverflow.com/questions/22566284/matplotlib-how-to-plot-images-instead-of-points
     if ax is None:
@@ -263,13 +268,11 @@ def getTimeFrame(allMeteogramData,fromDate, toDate):
 
 def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName):
     fig = plt.figure(figsize=(14,6))
-    #plt.xkcd()
     gs = gridspec.GridSpec(4, 1, height_ratios=[1, 1, 4, 1])
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
     ax3 = fig.add_subplot(gs[2])
     ax4 = fig.add_subplot(gs[3])
-    #plotPrecipitationBars(ax1, quantileData)
     plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex)
     plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex)
     plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName)
