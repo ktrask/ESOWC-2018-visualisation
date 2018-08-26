@@ -130,7 +130,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
 
 def plotWindBft(ax, qdata, fromIdx, toIdx):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
-    vsupFilenames = ["Stufe1.png", "Stufe2_KaumWind.png", "Stufe2_vielWind.png", "Stufe3_Windstille.png", "Stufe3_leichterWind.png", "Stufe3_starkerWind.png", "Stufe3_Sturm.png"]
+    vsupFilenames = ["Stufe1.png", "Stufe2_kaumWind.png", "Stufe2_vielWind.png", "Stufe3_Windstille.png", "Stufe3_leichterWind.png", "Stufe3_starkerWind.png", "Stufe3_Sturm.png"]
     files = [vsupFilenames[getVSUPWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
     image_path = './pictogram/wind/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
