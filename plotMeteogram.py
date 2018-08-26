@@ -92,10 +92,10 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     #print(numberedHours)
     #ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
     for hour in numberedHours:
-        ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center")
-        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "top")
+        #ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center", verticalalignment = "top" )
+        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "bottom")
         if hour.hour == 12:
-            ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center")
+            ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center", verticalalignment = "top")
     ax.axis('off')
     #ax.box(on=None)
     #ax.get_xaxis().set_visible(False)
@@ -299,7 +299,7 @@ if __name__ == '__main__':
             allMeteogramData['tcc'] = json.load(fp)
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(5))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     #plt.gcf().autofmt_xdate()
