@@ -55,7 +55,7 @@ async def main(loop, allMeteogramData, longitude, latitude, writeToFile = True):
 def getCoordinates(argv):
     if len(argv) > 0:
         try:
-            opts, args = getopt.getopt(argv, "h", ["location=", "lat=","lon="])
+            opts, args = getopt.getopt(argv, "hd:", ["days=", "location=", "lat=","lon="])
         except getopt.GetoptError:
             print("downloadJsonData.py --location 'Braunschweig, Germany'")
             print("downloadJsonData.py --lat 20 --lon 10")

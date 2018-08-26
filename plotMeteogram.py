@@ -10,6 +10,7 @@ from matplotlib.ticker import FormatStrFormatter
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from tzwhere import tzwhere
 import pytz
+import getopt
 
 def getNextDottedHour(hour):
     if hour < 2:
@@ -281,10 +282,25 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName):
 if __name__ == '__main__':
     #today = datetime.date.today()
     today = datetime.datetime.utcnow()
+    days = 3
     if len(sys.argv) > 1 :
         from downloadJsonData import getData, getCoordinates
         latitude, longitude = getCoordinates(sys.argv[1:])
         allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
+        try:
+            opts, args = getopt.getopt(sys.argv, "hd:", ["days=", "lat=", "lon=", "location="])
+        except getopt.GetoptError:
+            print("downloadJsonData.py --location 'Braunschweig, Germany'")
+            print("downloadJsonData.py --lat 20 --lon 10")
+            sys.exit(2)
+        #print(opts)
+        for opt, arg in opts:
+            if opt == "-h":
+                print("downloadJsonData.py --location 'Braunschweig, Germany'")
+                print("downloadJsonData.py --lat 20 --lon 10")
+                sys.exit(0)
+            elif opt == "--days" or opt == "-d":
+                days = int(arg)
     else:
         latitude = 52.2646577
         longitude = 10.5236066
@@ -299,7 +315,7 @@ if __name__ == '__main__':
             allMeteogramData['tcc'] = json.load(fp)
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(5))
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(days))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     #plt.gcf().autofmt_xdate()
