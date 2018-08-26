@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import datetime
+from datetime import timedelta
 import sys
 import json
 from matplotlib import pyplot as plt
@@ -22,15 +23,12 @@ def getNextDottedHour(hour):
     raise ValueError
 
 def getDottedHours(fromDate, toDate):
-    newDate = fromDate
-    dottedDates = []
+    newDate = fromDate + timedelta(hours=3)
+    dottedDates = [newDate]
     #print(newDate)
     #print(toDate)
     while newDate < toDate:
-        try:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, getNextDottedHour(newDate.hour),tzinfo=toDate.tzinfo)
-        except ValueError:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 2,tzinfo=toDate.tzinfo) + datetime.timedelta(1)
+        newDate = newDate + timedelta(hours=6)
         dottedDates.append(newDate)
     return(dottedDates[:-1])
 
@@ -76,7 +74,10 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     temps['median'] = np.array(qdata['2t']['median']) - 273.15
     temps['twenty_five'] = np.array(qdata['2t']['twenty_five']) - 273.15
     temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
+    temps['ten'] = np.array(qdata['2t']['ten']) - 273.15
+    temps['ninety'] = np.array(qdata['2t']['ninety']) - 273.15
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="lightblue", alpha = 0.5)
+    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['ten'][fromIdx:toIdx], y2=temps['ninety'][fromIdx:toIdx], color="cyan", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="blue", alpha = 0.5)
     ax.plot_date(x = dates[fromIdx:toIdx], y = temps['median'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
     #ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['min'][fromIdx:toIdx])-273.15, y2=np.array(qdata['2t']['max'][fromIdx:toIdx])-273.15, color="lightblue", alpha = 0.5)
@@ -298,7 +299,7 @@ if __name__ == '__main__':
             allMeteogramData['tcc'] = json.load(fp)
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(3))
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     #plt.gcf().autofmt_xdate()
