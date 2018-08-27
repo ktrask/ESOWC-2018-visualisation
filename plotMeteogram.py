@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import datetime
 from datetime import timedelta, datetime
 import sys, os, json
 import matplotlib
@@ -54,9 +53,9 @@ def getNumberedHours(fromDate, toDate):
     numberedDates = []
     while newDate < toDate:
         if newDate.hour < 12:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 12,tzinfo=toDate.tzinfo)
+            newDate = datetime(newDate.year, newDate.month, newDate.day, 12,tzinfo=toDate.tzinfo)
         else:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 0,tzinfo=toDate.tzinfo) + datetime.timedelta(1)
+            newDate = datetime(newDate.year, newDate.month, newDate.day, 0,tzinfo=toDate.tzinfo) + timedelta(1)
         numberedDates.append(newDate)
     return(numberedDates[:-1])
 
@@ -78,11 +77,11 @@ def getWeekdayString(day):
         return "Sunday"
 
 def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
-    startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
+    startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
     startDate = pytz.timezone('UTC').localize(startDate)
     if tzName:
         startDate = startDate.astimezone(pytz.timezone(tzName))
-    dates = [startDate + datetime.timedelta(hours=int(i)) for i in qdata['2t']['steps']]
+    dates = [startDate + timedelta(hours=int(i)) for i in qdata['2t']['steps']]
     #convert temperatures to numpy arrays:
     temps = {}
     temps['min'] = np.array(qdata['2t']['min']) - 273.15
@@ -259,8 +258,8 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx):
 def getTimeFrame(allMeteogramData,fromDate, toDate):
     #print(allMeteogramData)
     qdata = allMeteogramData['2t']
-    startDate = datetime.datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
-    dates = [startDate + datetime.timedelta(hours=int(i)) for i in qdata['2t']['steps']]
+    startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
+    dates = [startDate + timedelta(hours=int(i)) for i in qdata['2t']['steps']]
     fromIndex = 0
     if fromDate:
         for date in dates:
@@ -295,7 +294,7 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName):
 
 if __name__ == '__main__':
     #today = datetime.date.today()
-    today = datetime.datetime.utcnow()
+    today = datetime.utcnow()
     days = 3
     if len(sys.argv) > 1 :
         from downloadJsonData import getData, getCoordinates
@@ -329,9 +328,9 @@ if __name__ == '__main__':
             allMeteogramData['tcc'] = json.load(fp)
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(days))
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(days))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
-    #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
+    #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(10))
     #plt.gcf().autofmt_xdate()
     fig.savefig("./output/forecast.png", dpi = 300)
 
