@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import datetime
-import sys
-import json
+from datetime import timedelta, datetime
+import sys, os, json
 import matplotlib
 matplotlib.use('Agg')#use Agg because default is tkinter and its not threadsafe
 from matplotlib import pyplot as plt
@@ -12,6 +12,19 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib import offsetbox
 from tzwhere import tzwhere
 import pytz
+import getopt
+from pathlib import Path
+import matplotlib.font_manager as fm
+
+home = str(Path.home())
+
+if os.path.exists(home + "/.fonts/BebasNeue Regular.otf"):
+    prop = fm.FontProperties(fname=home+'/.fonts/BebasNeue Regular.otf')
+else:
+    prop = fm.FontProperties(family='DejaVu Sans')
+
+if not os.path.exists("output/"):
+    os.mkdir("output")
 
 
 def getNextDottedHour(hour):
@@ -26,15 +39,12 @@ def getNextDottedHour(hour):
     raise ValueError
 
 def getDottedHours(fromDate, toDate):
-    newDate = fromDate
-    dottedDates = []
+    newDate = fromDate + timedelta(hours=3)
+    dottedDates = [newDate]
     #print(newDate)
     #print(toDate)
     while newDate < toDate:
-        try:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, getNextDottedHour(newDate.hour),tzinfo=toDate.tzinfo)
-        except ValueError:
-            newDate = datetime.datetime(newDate.year, newDate.month, newDate.day, 2,tzinfo=toDate.tzinfo) + datetime.timedelta(1)
+        newDate = newDate + timedelta(hours=6)
         dottedDates.append(newDate)
     return(dottedDates[:-1])
 
@@ -80,7 +90,10 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     temps['median'] = np.array(qdata['2t']['median']) - 273.15
     temps['twenty_five'] = np.array(qdata['2t']['twenty_five']) - 273.15
     temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
+    temps['ten'] = np.array(qdata['2t']['ten']) - 273.15
+    temps['ninety'] = np.array(qdata['2t']['ninety']) - 273.15
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="lightblue", alpha = 0.5)
+    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['ten'][fromIdx:toIdx], y2=temps['ninety'][fromIdx:toIdx], color="cyan", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="blue", alpha = 0.5)
     ax.plot_date(x = dates[fromIdx:toIdx], y = temps['median'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
     #ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['min'][fromIdx:toIdx])-273.15, y2=np.array(qdata['2t']['max'][fromIdx:toIdx])-273.15, color="lightblue", alpha = 0.5)
@@ -95,10 +108,10 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     #print(numberedHours)
     #ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
     for hour in numberedHours:
-        ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center")
-        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "top")
+        #ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center", verticalalignment = "top" )
+        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "bottom", fontproperties=prop)
         if hour.hour == 12:
-            ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center")
+            ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center", verticalalignment = "top", fontproperties=prop)
     ax.axis('off')
     #ax.box(on=None)
     #ax.get_xaxis().set_visible(False)
@@ -117,7 +130,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
             ax.text(date, temp - yscale, str(int(np.round(temp))),
                     horizontalalignment = "center",
                     verticalalignment = "center",
-                    color = 'white')
+                    color = 'white', fontproperties=prop)
         if localMaxima[i]:
             date = dates[i]
             temp = temps['median'][i]
@@ -126,7 +139,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
             ax.text(date, temp + yscale, str(int(np.round(temp))),
                     horizontalalignment = "center",
                     verticalalignment = "center",
-                    color = "white")
+                    color = "white", fontproperties=prop)
 
 def plotWindBft(ax, qdata, fromIdx, toIdx):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
@@ -283,10 +296,25 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName):
 if __name__ == '__main__':
     #today = datetime.date.today()
     today = datetime.datetime.utcnow()
+    days = 3
     if len(sys.argv) > 1 :
         from downloadJsonData import getData, getCoordinates
         latitude, longitude = getCoordinates(sys.argv[1:])
         allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
+        try:
+            opts, args = getopt.getopt(sys.argv, "hd:", ["days=", "lat=", "lon=", "location="])
+        except getopt.GetoptError:
+            print("downloadJsonData.py --location 'Braunschweig, Germany'")
+            print("downloadJsonData.py --lat 20 --lon 10")
+            sys.exit(2)
+        #print(opts)
+        for opt, arg in opts:
+            if opt == "-h":
+                print("downloadJsonData.py --location 'Braunschweig, Germany'")
+                print("downloadJsonData.py --lat 20 --lon 10")
+                sys.exit(0)
+            elif opt == "--days" or opt == "-d":
+                days = int(arg)
     else:
         latitude = 52.2646577
         longitude = 10.5236066
@@ -301,7 +329,7 @@ if __name__ == '__main__':
             allMeteogramData['tcc'] = json.load(fp)
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
-    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(3))
+    fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(days))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + datetime.timedelta(10))
     #plt.gcf().autofmt_xdate()
