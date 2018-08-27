@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="7.8200002mm"
+   height="7.8200002mm"
+   viewBox="0 0 7.8200002 7.8200002"
+   version="1.1"
+   id="svg1047"
+   inkscape:version="0.92.3 (d244b95, 2018-08-02)"
+   sodipodi:docname="step3_light_clouds.svg">
+  <defs
+     id="defs1041" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.2"
+     inkscape:cx="14.127306"
+     inkscape:cy="-4.5436133"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g4033"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata1044">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-289.18)">
+    <g
+       transform="translate(-238.65772,217.9384)"
+       id="g3972"
+       inkscape:export-filename="C:\Users\Pecca\Documents\Meteorologie\wolken-icons-gleich\Stufe3_starkBewölkt.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
+      <g
+         id="g4938"
+         transform="translate(-1.2399256,-0.15386168)">
+        <g
+           inkscape:export-ydpi="300"
+           inkscape:export-xdpi="300"
+           inkscape:export-filename="C:\Users\Pecca\Documents\Meteorologie\wolken-icons-gleich\Stufe2_eherSonnig.png"
+           id="g3983"
+           transform="translate(-7.1203827,0.05937064)">
+          <g
+             transform="translate(-8.5526275,0.28348541)"
+             id="g3993"
+             style="stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none"
+             inkscape:export-filename="C:\Users\Pecca\Documents\Meteorologie\wolken-icons-gleich\Stufe3_klarerHimmel.png"
+             inkscape:export-xdpi="300"
+             inkscape:export-ydpi="300">
+            <g
+               transform="translate(16.971619,-10.640182)"
+               id="g4015"
+               inkscape:export-filename="C:\Users\Pecca\Documents\Meteorologie\wolken-icons-gleich\Stufe2_eherBewölkt.png"
+               inkscape:export-xdpi="300"
+               inkscape:export-ydpi="300">
+              <g
+                 transform="translate(-16.837983,0.08303784)"
+                 id="g4033"
+                 inkscape:export-filename="C:\Users\Pecca\Documents\Meteorologie\wolken-icons-gleich\Stufe3_leichtBedeckt.png"
+                 inkscape:export-xdpi="300"
+                 inkscape:export-ydpi="300">
+                <g
+                   transform="matrix(1.0740317,0.18163336,-0.18163336,1.0740317,-32.579637,-39.77925)"
+                   id="g3749">
+                  <g
+                     style="fill:#004e5e;fill-opacity:1;stroke:none"
+                     id="g3629"
+                     transform="matrix(1.0804011,-0.06456445,0.06456445,1.0804011,184.18514,-179.14162)">
+                    <g
+                       id="g3621"
+                       style="fill:#004e5e;fill-opacity:1;stroke:none"
+                       transform="matrix(0.01704113,0,0,0.01704113,75.784244,229.37138)">
+                      <g
+                         id="g3619"
+                         style="fill:#004e5e;fill-opacity:1;stroke:none">
+                        <path
+                           id="path3617"
+                           d="m 200.618,134.94 c -0.359,-0.027 -0.719,-0.027 -1.078,0 -35.678,0 -64.6,28.922 -64.6,64.6 0,4.021 3.259,7.28 7.28,7.28 4.005,-0.022 7.24,-3.275 7.24,-7.28 -0.022,-27.636 22.364,-50.058 50,-50.08 0.027,0 0.053,0 0.08,0 4.01,0.298 7.501,-2.711 7.799,-6.721 0.298,-4.01 -2.711,-7.502 -6.721,-7.799 z"
+                           inkscape:connector-curvature="0"
+                           style="fill:#004e5e;fill-opacity:1;stroke:none" />
+                      </g>
+                    </g>
+                    <g
+                       id="g3627"
+                       style="fill:#004e5e;fill-opacity:1;stroke:none"
+                       transform="matrix(0.01704113,0,0,0.01704113,75.784244,229.37138)">
+                      <g
+                         id="g3625"
+                         style="fill:#004e5e;fill-opacity:1;stroke:none">
+                        <path
+                           id="path3623"
+                           d="M 199.569,92.7 C 140.563,92.692 92.723,140.519 92.714,199.525 c -0.004,28.347 11.258,55.534 31.305,75.575 20.009,20.059 47.188,31.316 75.52,31.28 59.006,0.008 106.847,-47.819 106.855,-106.825 C 306.402,140.549 258.575,92.708 199.569,92.7 Z m 65.25,172.24 c -36.053,36.053 -94.507,36.053 -130.56,0 -17.343,-17.343 -27.072,-40.874 -27.04,-65.4 -0.035,-24.492 9.697,-47.987 27.04,-65.28 v 0.12 c 36.053,-36.053 94.507,-36.053 130.56,0 36.054,36.053 36.054,94.507 0,130.56 z"
+                           inkscape:connector-curvature="0"
+                           style="fill:#004e5e;fill-opacity:1;stroke:none" />
+                      </g>
+                    </g>
+                  </g>
+                  <path
+                     inkscape:connector-curvature="0"
+                     id="path3631"
+                     d="m 281.08154,69.210247 -0.71647,0.268201 -0.1709,0.911741 0.45151,0.719606 0.54261,0.122526 3.8654,-0.611344 0.55284,-0.413374 0.21239,-0.688824 -0.24264,-0.760269 -0.51476,-0.363659 -0.3882,-0.131728 -0.50446,0.04434 -0.53383,-0.447049 -0.83088,-0.232058 -0.6134,0.107138 -0.67497,0.491106 -0.29012,0.566686 z"
+                     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.31497389px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+                  <path
+                     inkscape:export-ydpi="300"
+                     inkscape:export-xdpi="300"
+                     id="path3633"
+                     d="m 284.75615,70.805027 -3.31216,0.533346 c -0.6137,0.09833 -1.19324,-0.319858 -1.29205,-0.933472 -0.0974,-0.604968 0.30847,-1.177034 0.90813,-1.287609 0.0947,-0.777875 0.68921,-1.400175 1.46815,-1.525625 0.64574,-0.103942 1.28359,0.152375 1.67988,0.670755 0.0475,-0.01357 0.0912,-0.02215 0.13366,-0.02957 0.70936,-0.113946 1.3792,0.369673 1.49337,1.078634 0.11461,0.709436 -0.36965,1.379373 -1.07897,1.493614 z m -3.64271,-1.519241 c -0.51833,0.08405 -0.87221,0.573076 -0.78875,1.091332 0.0835,0.518253 0.57303,0.871863 1.09146,0.788373 l 3.31216,-0.533346 c 0.61421,-0.09848 1.03311,-0.678908 0.93424,-1.292877 -0.0989,-0.613791 -0.67884,-1.032585 -1.2928,-0.933702 -0.0515,0.0079 -0.10502,0.02214 -0.16887,0.04193 -0.0362,0.0117 -0.0757,-0.0014 -0.0977,-0.03268 -0.35377,-0.497594 -0.94669,-0.746817 -1.54701,-0.650132 -0.7228,0.116299 -1.26917,0.707529 -1.32883,1.437599 -0.003,0.04098 -0.0349,0.07257 -0.0754,0.07952 z"
+                     inkscape:connector-curvature="0"
+                     style="fill:#004e5e;fill-opacity:1;stroke:#004e5e;stroke-width:0.08813147;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
