@@ -16,10 +16,10 @@ def plotMeteogramFile(latitude = None, longitude = None, location = None):
         latitude = 52.2646577
         longitude = 10.5236066
     allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
-    tzName = tz.tzNameAt(longitude, latitude)
+    tzName = tz.tzNameAt(latitude, longitude)
     today = datetime.utcnow()
     fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(3))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     filename = str(today) + str(latitude) + str(longitude) + "forecast.png"
-    fig.savefig("/tmp/" + filename, dpi=100)
+    fig.savefig("/tmp/" + filename, dpi=300)
     return filename

@@ -7,7 +7,7 @@ from random import randint
 import json
 from .controller import plotMeteogramFile
 from base64 import b64encode
-import urllib
+import os
 
 class searchForm(FlaskForm):
     search = TextAreaField("Search", [validators.Length(min=4,max=250)])
@@ -42,10 +42,9 @@ def search():
         with open("/tmp/"+filename, "rb") as fp:
             fileContent = b64encode(fp.read())
         #return jsonify( filename )
+        os.remove("/tmp/"+filename)
         return render_template("meteogram.html",
                 image = 'data:image/png;base64,{}'.format(fileContent.decode())
-                #image = 'data:image/png;base64,{}'.format(urllib.parse.quote(fileContent))
-                #image = 'data:image/png;base64,{}'.format(urllib.parse.quote(fileContent.rstrip('\n' )))
                 )
     else:
         print("invalid form")

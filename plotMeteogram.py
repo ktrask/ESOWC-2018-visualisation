@@ -25,6 +25,7 @@ else:
 if not os.path.exists("output/"):
     os.mkdir("output")
 
+#print(home)
 
 def getNextDottedHour(hour):
     if hour < 2:
