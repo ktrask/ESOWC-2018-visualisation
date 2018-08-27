@@ -2,8 +2,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from datetime import timedelta
-import sys
-import json
+import sys, os, json
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
@@ -11,6 +10,18 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from tzwhere import tzwhere
 import pytz
 import getopt
+from pathlib import Path
+import matplotlib.font_manager as fm
+
+home = str(Path.home())
+
+if os.path.exists(home + "/.fonts/BebasNeue Regular.otf"):
+    prop = fm.FontProperties(fname=home+'/.fonts/BebasNeue Regular.otf')
+else:
+    prop = fm.FontProperties(family='DejaVu Sans')
+
+if not os.path.exists("output/"):
+    os.mkdir("output")
 
 def getNextDottedHour(hour):
     if hour < 2:
@@ -94,9 +105,9 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     #ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
     for hour in numberedHours:
         #ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center", verticalalignment = "top" )
-        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "bottom")
+        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "bottom", fontproperties=prop)
         if hour.hour == 12:
-            ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center", verticalalignment = "top")
+            ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center", verticalalignment = "top", fontproperties=prop)
     ax.axis('off')
     #ax.box(on=None)
     #ax.get_xaxis().set_visible(False)
@@ -115,7 +126,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
             ax.text(date, temp - yscale, str(int(np.round(temp))),
                     horizontalalignment = "center",
                     verticalalignment = "center",
-                    color = 'white')
+                    color = 'white', fontproperties=prop)
         if localMaxima[i]:
             date = dates[i]
             temp = temps['median'][i]
@@ -124,7 +135,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
             ax.text(date, temp + yscale, str(int(np.round(temp))),
                     horizontalalignment = "center",
                     verticalalignment = "center",
-                    color = "white")
+                    color = "white", fontproperties=prop)
 
 def plotWindBft(ax, qdata, fromIdx, toIdx):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
