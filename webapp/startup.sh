@@ -3,4 +3,8 @@ cd /app
 ls
 ls -a /root
 #cat
-python3 run.py
+while :
+do
+  python3 run.py
+  sleep 1
+done

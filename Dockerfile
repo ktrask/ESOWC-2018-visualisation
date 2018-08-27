@@ -31,4 +31,4 @@ COPY plotMeteogram.py /app/app/
 
 EXPOSE 5003
 
-ENTRYPOINT ["/bin/bash", "/app/webapp/startup.sh"]
+ENTRYPOINT ["/bin/bash", "/app/startup.sh"]
