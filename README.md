@@ -26,7 +26,10 @@ pip3 install tzwhere
 pip3 install geopy
 pip3 install aiohttp
 pip3 install async_timeout
+pip3 install altitude
 ```
+
+Due to filling the altitude cache, the first run will take a while.
 
 
 For the webapp:

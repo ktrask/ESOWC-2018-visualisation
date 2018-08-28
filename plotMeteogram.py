@@ -19,8 +19,10 @@ home = str(Path.home())
 
 if os.path.exists(home + "/.fonts/BebasNeue Regular.otf"):
     prop = fm.FontProperties(fname=home+'/.fonts/BebasNeue Regular.otf')
+    prop.set_size(10)
 else:
     prop = fm.FontProperties(family='DejaVu Sans')
+
 
 if not os.path.exists("output/"):
     os.mkdir("output")
@@ -247,9 +249,9 @@ def getVSUPrainCoordinate(qdata):
         return(2)
     if qdata['ninety'] < 1e-3:
         return(4)
-    if qdata['seventy_five'] < 1e-3:
+    if qdata['seventy_five'] < 1.5e-3:
         return(1)
-    if qdata['twenty_five'] > 1e-3:
+    if qdata['median'] > 1e-3:
         return(2)
     return(0)
 
@@ -319,8 +321,8 @@ if __name__ == '__main__':
             sys.exit(2)
         #opts = [i for i in opts]
         #print(opts)
-        latitude, longitude = getCoordinates(opts)
-        allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
+        latitude, longitude, altitude, location = getCoordinates(opts)
+        allMeteogramData = getData(float(longitude), float(latitude), altitude, writeToFile = False)
         for opt, arg in opts:
             if opt == "-h":
                 print("downloadJsonData.py --location 'Braunschweig, Germany'")
@@ -331,6 +333,8 @@ if __name__ == '__main__':
     else:
         latitude = 52.2646577
         longitude = 10.5236066
+        altitude = 79
+        location = "Braunschweig, Germany"
         allMeteogramData = {}
         with open("data/2t-10days.json", "r") as fp:
             allMeteogramData['2t'] = json.load(fp)
@@ -344,6 +348,7 @@ if __name__ == '__main__':
     tzName = tz.tzNameAt(latitude, longitude)
     fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(days))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
+    fig.suptitle(location + " " + str(latitude) + "°/" + str(longitude) + "°/" + str(altitude) + "m", fontproperties=prop)
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(10))
     #plt.gcf().autofmt_xdate()
     fig.savefig("./output/forecast.png", dpi = 300)

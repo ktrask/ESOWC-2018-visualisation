@@ -22,6 +22,7 @@ RUN pip3 install tzwhere
 RUN pip3 install geopy
 RUN pip3 install aiohttp
 RUN pip3 install async_timeout
+RUN pip3 install altitude
 
 ADD webapp /app
 ADD data /app/data
