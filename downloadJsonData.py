@@ -52,38 +52,25 @@ async def main(loop, allMeteogramData, longitude, latitude, writeToFile = True):
         tasks = [downloadData(session, param, allMeteogramData, longitude, latitude, writeToFile) for param in params]
         await asyncio.gather(*tasks)
 
-def getCoordinates(argv):
-    if len(argv) > 0:
-        try:
-            opts, args = getopt.getopt(argv, "hd:", ["days=", "location=", "lat=","lon="])
-        except getopt.GetoptError:
+def getCoordinates(opts):
+    latitude = 0
+    longitude = 0
+    for opt, arg in opts:
+        if opt == "-h":
             print("downloadJsonData.py --location 'Braunschweig, Germany'")
             print("downloadJsonData.py --lat 20 --lon 10")
-            sys.exit(2)
-        #print(opts)
-        for opt, arg in opts:
-            if opt == "-h":
-                print("downloadJsonData.py --location 'Braunschweig, Germany'")
-                print("downloadJsonData.py --lat 20 --lon 10")
-                sys.exit(0)
-            elif opt == "--location":
-                #print("location", arg)
-                geolocator = Nominatim()
-                loc = geolocator.geocode(arg)
-                latitude = loc.latitude
-                longitude = loc.longitude
-                print(latitude, longitude)
-            elif opt == "--lat":
-                latitude = float(arg)
-            elif opt == "--lon":
-                longitude = float(arg)
-
-    else:
-        location = "Braunschweig Germany"
-        geolocator = Nominatim()
-        loc = geolocator.geocode(location)
-        latitude = loc.latitude
-        longitude = loc.longitude
+            sys.exit(0)
+        elif opt == "--location":
+            #print("location", arg)
+            geolocator = Nominatim(user_agent="ESOWC-Meteogram-2018")
+            loc = geolocator.geocode(arg)
+            latitude = loc.latitude
+            longitude = loc.longitude
+            print(latitude, longitude)
+        elif opt == "--lat":
+            latitude = float(arg)
+        elif opt == "--lon":
+            longitude = float(arg)
     return ( latitude, longitude )
 
 def getData(longitude, latitude, writeToFile = True):
@@ -100,7 +87,22 @@ if __name__ == '__main__':
     latitude = 0
     longitude = 0
     startTime = time.time()
-    latitude, longitude = getCoordinates(sys.argv[1:])
+    if len(sys.argv) > 1:
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "hd:", ["days=", "location=", "lat=","lon="])
+            latitude, longitude = getCoordinates(opts)
+        except getopt.GetoptError:
+            print("downloadJsonData.py --location 'Braunschweig, Germany'")
+            print("downloadJsonData.py --lat 20 --lon 10")
+            sys.exit(2)
+    else:
+        location = "Braunschweig Germany"
+        geolocator = Nominatim(user_agent="ESOWC-Meteogram-2018")
+        loc = geolocator.geocode(location)
+        latitude = loc.latitude
+        longitude = loc.longitude
+        #print(opts)
+        latitude, longitude = getCoordinates(opts)
     midTime = time.time()
     print(latitude)
     print(longitude)

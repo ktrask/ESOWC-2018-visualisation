@@ -297,17 +297,19 @@ if __name__ == '__main__':
     #today = datetime.date.today()
     today = datetime.utcnow()
     days = 3
-    if len(sys.argv) > 1 :
+    if len(sys.argv) > 1:
+        print(sys.argv)
         from downloadJsonData import getData, getCoordinates
-        latitude, longitude = getCoordinates(sys.argv[1:])
-        allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
         try:
-            opts, args = getopt.getopt(sys.argv, "hd:", ["days=", "lat=", "lon=", "location="])
+            opts, args = getopt.getopt(sys.argv[1:], "hd:", ["days=", "lat=", "lon=", "location="])
         except getopt.GetoptError:
             print("downloadJsonData.py --location 'Braunschweig, Germany'")
             print("downloadJsonData.py --lat 20 --lon 10")
             sys.exit(2)
-        #print(opts)
+        opts = [i for i in opts]
+        print(opts)
+        latitude, longitude = getCoordinates(opts)
+        allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
         for opt, arg in opts:
             if opt == "-h":
                 print("downloadJsonData.py --location 'Braunschweig, Germany'")
