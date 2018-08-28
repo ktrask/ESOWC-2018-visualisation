@@ -92,17 +92,25 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
     temps['ten'] = np.array(qdata['2t']['ten']) - 273.15
     temps['ninety'] = np.array(qdata['2t']['ninety']) - 273.15
+    eighty_spread = temps['ninety'] - temps['ten']
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="lightblue", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['ten'][fromIdx:toIdx], y2=temps['ninety'][fromIdx:toIdx], color="cyan", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="blue", alpha = 0.5)
     ax.plot_date(x = dates[fromIdx:toIdx], y = temps['median'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
-    #ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['min'][fromIdx:toIdx])-273.15, y2=np.array(qdata['2t']['max'][fromIdx:toIdx])-273.15, color="lightblue", alpha = 0.5)
-    #ax.fill_between(x= dates[fromIdx:toIdx], y1=np.array(qdata['2t']['twenty_five'][fromIdx:toIdx])-273.15 , y2=np.array(qdata['2t']['seventy_five'][fromIdx:toIdx])-273.15, color="blue", alpha = 0.5)
-    #ax.plot_date(x = dates[fromIdx:toIdx], y = np.array(qdata['2t']['median'][fromIdx:toIdx]) - 273.15, color="black", linestyle="solid", marker=None)
     dottedHours = getDottedHours(dates[fromIdx], dates[toIdx-1])
     ymin, ymax = ax.get_ylim()
-    yscale = (ymax-ymin)/7
+    yscale = ymax-ymin
+    #if the yscale is too small, small temperature changes would seem to be large.
+    if yscale < 4:
+        print(yscale)
+        tmp = (4 - yscale) / 4
+        print(tmp)
+        ymin -= tmp
+        ymax += tmp
+        yscale = 4
+        ax.set_ylim(ymin-tmp,ymax+tmp)
     #print(dottedHours)
+    yscale = yscale / 7
     ax.vlines(dottedHours, ymin, ymax, linestyle = ':', color = "gray")
     numberedHours = getNumberedHours(dates[fromIdx], dates[toIdx-1])
     #print(numberedHours)
