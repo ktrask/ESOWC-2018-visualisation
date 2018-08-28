@@ -92,7 +92,10 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
     temps['ten'] = np.array(qdata['2t']['ten']) - 273.15
     temps['ninety'] = np.array(qdata['2t']['ninety']) - 273.15
-    eighty_spread = temps['ninety'] - temps['ten']
+    #eighty_spread = temps['ninety'] - temps['ten']
+    #alphaChannel = 2 / eighty_spread
+    #alphaChannel[alphaChannel > 1] = 1
+    #matplotlib does not support alpha as array
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="lightblue", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['ten'][fromIdx:toIdx], y2=temps['ninety'][fromIdx:toIdx], color="cyan", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="blue", alpha = 0.5)
