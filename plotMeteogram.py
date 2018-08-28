@@ -306,8 +306,8 @@ if __name__ == '__main__':
             print("downloadJsonData.py --location 'Braunschweig, Germany'")
             print("downloadJsonData.py --lat 20 --lon 10")
             sys.exit(2)
-        opts = [i for i in opts]
-        print(opts)
+        #opts = [i for i in opts]
+        #print(opts)
         latitude, longitude = getCoordinates(opts)
         allMeteogramData = getData(float(longitude), float(latitude), writeToFile = False)
         for opt, arg in opts:
