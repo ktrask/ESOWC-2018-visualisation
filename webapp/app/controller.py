@@ -32,9 +32,12 @@ def plotMeteogramFile(latitude = None, longitude = None, location = None, days =
     fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(days))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     filename = str(today) + str(latitude) + str(longitude) + "forecast.png"
+    tmpSize = prop.get_size()
     prop.set_size(16)
+    print(tmpSize)
     fig.suptitle(location + " " + str(np.round(latitude, decimals = 5)) +\
                   "°/" + str(np.round(longitude, decimals = 5)) +\
                   "°/" + str(altitude) + "m", fontproperties=prop)
     fig.savefig("/tmp/" + filename, dpi=300)
+    prop.set_size(tmpSize)
     return filename
