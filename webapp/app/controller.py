@@ -6,15 +6,26 @@ import json
 from .downloadJsonData import getData, getCoordinates
 from .plotMeteogram import plotMeteogram, getTimeFrame, prop
 from tzwhere import tzwhere
+import numpy as np
 
 tz = tzwhere.tzwhere()
 
 def plotMeteogramFile(latitude = None, longitude = None, location = None, days = 3):
+    print(latitude, longitude)
+    latitude = float(latitude)
+    longitude = float(longitude)
     if location:
         latitude, longitude, altitude, _ = getCoordinates([("--location", location)])
-    elif not latitude and not longitude:
+    elif latitude is not None and longitude is not None:
+        from altitude import ElevationService
+        e = ElevationService('.cache/')
+        altitude = e.get_elevation(latitude, longitude)
+        if altitude is None:
+            altitude = -999
+    else:
         latitude = 52.2646577
         longitude = 10.5236066
+        altitude = 79
     allMeteogramData = getData(float(longitude), float(latitude), altitude, writeToFile = False)
     tzName = tz.tzNameAt(latitude, longitude)
     today = datetime.utcnow()
@@ -22,6 +33,8 @@ def plotMeteogramFile(latitude = None, longitude = None, location = None, days =
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
     filename = str(today) + str(latitude) + str(longitude) + "forecast.png"
     prop.set_size(16)
-    fig.suptitle(location + " " + str(latitude) + "°/" + str(longitude) + "°/" + str(altitude) + "m", fontproperties=prop)
+    fig.suptitle(location + " " + str(np.round(latitude, decimals = 5)) +\
+                  "°/" + str(np.round(longitude, decimals = 5)) +\
+                  "°/" + str(altitude) + "m", fontproperties=prop)
     fig.savefig("/tmp/" + filename, dpi=300)
     return filename

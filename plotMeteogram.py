@@ -348,7 +348,12 @@ if __name__ == '__main__':
     tzName = tz.tzNameAt(latitude, longitude)
     fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(days))
     fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
-    fig.suptitle(location + " " + str(latitude) + "°/" + str(longitude) + "°/" + str(altitude) + "m", fontproperties=prop)
+    if location is None:
+        location = ""
+    fig.suptitle(location + " " + str(np.round(latitude, decimals = 5)) +\
+                 "°/" + str(np.round(longitude, decimals = 5)) +\
+                 "°/" + str(altitude) + "m", fontproperties=prop)
+
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(10))
     #plt.gcf().autofmt_xdate()
     fig.savefig("./output/forecast.png", dpi = 300)

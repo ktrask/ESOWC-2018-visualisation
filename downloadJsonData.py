@@ -16,7 +16,11 @@ except:
 
 #lat = random.randrange(-90, 90)
 #lon = random.randrange(-180, 180)
-yesterday = datetime.utcnow() - timedelta(1)
+yesterday = datetime.utcnow()
+#if yesterday.hour < 19:
+if yesterday.hour < 8:
+    yesterday = yesterday - timedelta(hour=10)
+#yesterday = datetime.utcnow() - timedelta(1)
 
 api  = { "url": "https://api.ecmwf.int/v1/services/meteogram/requests/",
                  "token": credentials['key']}
@@ -24,6 +28,9 @@ api  = { "url": "https://api.ecmwf.int/v1/services/meteogram/requests/",
 
 async def downloadData(session, param,allMeteogramData, longitude, latitude, altitude, writeToFile = True):
     with async_timeout.timeout(10):
+        timeString = "0000"
+        if yesterday.hour >= 19:
+            timeString = "1200"
         #Getting 2-metre temperature data ...
         request =  {
                             "meteogram": "10days",
@@ -31,7 +38,7 @@ async def downloadData(session, param,allMeteogramData, longitude, latitude, alt
                             "location": "%f/%f" % (latitude, longitude),
                             "altitude": str(altitude),
                             "date": yesterday.strftime('%Y%m%d'),# Date should be expresed as YYYYMMDD
-                            "time": "0000"   # Time should bb expessed as HHHH [1200 or 0000]
+                            "time": timeString   # Time should bb expessed as HHHH [1200 or 0000]
                         }
         #Posting the request
         async with session.post(api["url"], json=request, params={'token':api['token']}) as response:
@@ -78,7 +85,7 @@ def getCoordinates(opts):
     from altitude import ElevationService
     e = ElevationService('.cache/')
     altitude = e.get_elevation(latitude, longitude)
-    if not altitude:
+    if altitude is None:
         altitude = -999
     print(altitude)
     return ( latitude, longitude, altitude, location )

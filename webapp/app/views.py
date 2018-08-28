@@ -10,9 +10,9 @@ from base64 import b64encode
 import os
 
 class searchForm(FlaskForm):
-    search = TextField("Search")
-    #lat = DecimalField("Latitude")
-    #lon = DecimalField("Longitude")
+    search = TextField("Search",  [validators.Optional()])
+    lat = DecimalField("Latitude", [validators.Optional()])
+    lon = DecimalField("Longitude",[validators.Optional()])
     days = IntegerField("Length of Meteogram in Days", default=3)
     submit = SubmitField('Go!')
 
@@ -42,8 +42,10 @@ def search():
         #print(form.search.data)
         #print(form.days.data)
         searchLocation = form.search.data
+        latitude = form.lat.data
+        longitude = form.lon.data
         print('location: ' +  searchLocation)
-        filename = plotMeteogramFile(latitude = None, longitude = None,
+        filename = plotMeteogramFile(latitude = latitude, longitude = longitude,
                                      location = searchLocation,
                                      days = form.days.data)
         with open("/tmp/"+filename, "rb") as fp:
