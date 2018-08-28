@@ -11,7 +11,7 @@ tz = tzwhere.tzwhere()
 
 def plotMeteogramFile(latitude = None, longitude = None, location = None, days = 3):
     if location:
-        latitude, longitude = getCoordinates([("location", location)])
+        latitude, longitude = getCoordinates([("--location", location)])
     elif not latitude and not longitude:
         latitude = 52.2646577
         longitude = 10.5236066
