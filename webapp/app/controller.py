@@ -12,11 +12,11 @@ tz = tzwhere.tzwhere()
 
 def plotMeteogramFile(latitude = None, longitude = None, location = None, days = 3):
     print(latitude, longitude)
-    latitude = float(latitude)
-    longitude = float(longitude)
     if location:
         latitude, longitude, altitude, _ = getCoordinates([("--location", location)])
     elif latitude is not None and longitude is not None:
+        latitude = float(latitude)
+        longitude = float(longitude)
         from altitude import ElevationService
         e = ElevationService('.cache/')
         altitude = e.get_elevation(latitude, longitude)
