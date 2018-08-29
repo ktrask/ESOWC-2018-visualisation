@@ -205,7 +205,7 @@ def getVSUPCloudCoordinate(qdata):
         return(3)#no cloud
     if qdata['ten'] > 0.9:
         return(6)#all cloudy
-    if qdata['ten'] > 0.5 and qdata['ninety'] < 0.95:
+    if qdata['ten'] > 0.5:
         return(5)#lot of clouds
     #if qdata['ten'] > 10:
     #    return(2)
