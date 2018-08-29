@@ -272,7 +272,7 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx):
 def getTimeFrame(allMeteogramData,fromDate, toDate):
     #print(allMeteogramData)
     qdata = allMeteogramData['2t']
-    startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
+    startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]), int(qdata['time'][0:2]))
     dates = [startDate + timedelta(hours=int(i)) for i in qdata['2t']['steps']]
     fromIndex = 0
     if fromDate:
@@ -356,5 +356,6 @@ if __name__ == '__main__':
 
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(10))
     #plt.gcf().autofmt_xdate()
+    fig.text(0.1,0.03,allMeteogramData['2t']['date']+"-"+allMeteogramData['2t']['time'],fontproperties=prop)
     fig.savefig("./output/forecast.png", dpi = 300)
 

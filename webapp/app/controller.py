@@ -38,6 +38,7 @@ def plotMeteogramFile(latitude = None, longitude = None, location = None, days =
     fig.suptitle(location + " " + str(np.round(latitude, decimals = 5)) +\
                   "°/" + str(np.round(longitude, decimals = 5)) +\
                   "°/" + str(altitude) + "m", fontproperties=prop)
-    fig.savefig("/tmp/" + filename, dpi=300)
     prop.set_size(tmpSize)
+    fig.text(0.1,0.03,allMeteogramData['2t']['date']+"-"+allMeteogramData['2t']['time'],fontproperties=prop)
+    fig.savefig("/tmp/" + filename, dpi=300)
     return filename
