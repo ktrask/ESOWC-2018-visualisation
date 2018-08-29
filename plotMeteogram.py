@@ -98,9 +98,9 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     #alphaChannel = 2 / eighty_spread
     #alphaChannel[alphaChannel > 1] = 1
     #matplotlib does not support alpha as array
-    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="lightblue", alpha = 0.5)
-    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['ten'][fromIdx:toIdx], y2=temps['ninety'][fromIdx:toIdx], color="cyan", alpha = 0.5)
-    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="blue", alpha = 0.5)
+    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="#85cbcfff", alpha = 0.5)
+    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['ten'][fromIdx:toIdx], y2=temps['ninety'][fromIdx:toIdx], color="#348292ff", alpha = 0.5)
+    ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="#004e5eff", alpha = 0.5)
     ax.plot_date(x = dates[fromIdx:toIdx], y = temps['median'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
     dottedHours = getDottedHours(dates[fromIdx], dates[toIdx-1])
     ymin, ymax = ax.get_ylim()
