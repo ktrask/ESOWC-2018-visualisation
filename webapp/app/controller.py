@@ -6,6 +6,7 @@ import json
 from .downloadJsonData import getData, getCoordinates
 from .plotMeteogram import plotMeteogram, getTimeFrame, prop
 from tzwhere import tzwhere
+from matplotlib.pyplot import close as pltclose
 import numpy as np
 
 tz = tzwhere.tzwhere()
@@ -41,4 +42,5 @@ def plotMeteogramFile(latitude = None, longitude = None, location = None, days =
     prop.set_size(tmpSize)
     fig.text(0.1,0.03,allMeteogramData['2t']['date']+"-"+allMeteogramData['2t']['time'],fontproperties=prop)
     fig.savefig("/tmp/" + filename, dpi=300)
+    pltclose(fig)
     return filename
