@@ -16,17 +16,16 @@ except:
 
 #lat = random.randrange(-90, 90)
 #lon = random.randrange(-180, 180)
-yesterday = datetime.utcnow()
-#if yesterday.hour < 19:
-if yesterday.hour < 8:
-    yesterday = yesterday - timedelta(hour=10)
-#yesterday = datetime.utcnow() - timedelta(1)
 
 api  = { "url": "https://api.ecmwf.int/v1/services/meteogram/requests/",
                  "token": credentials['key']}
 
 
 async def downloadData(session, param,allMeteogramData, longitude, latitude, altitude, writeToFile = True):
+    yesterday = datetime.utcnow()
+    #if yesterday.hour < 19:
+    if yesterday.hour < 8:
+        yesterday = yesterday - timedelta(hour=10)
     with async_timeout.timeout(10):
         timeString = "0000"
         if yesterday.hour >= 19:
