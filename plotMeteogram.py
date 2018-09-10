@@ -102,7 +102,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="#85cbcfff", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['ten'][fromIdx:toIdx], y2=temps['ninety'][fromIdx:toIdx], color="#348292ff", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="#004e5eff", alpha = 0.5)
-    if plotType == "ensembles":
+    if plotType == "ensemble":
         ax.plot_date(x = dates[fromIdx:toIdx], y = temps['median'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
     elif plotType == "enhanced-hres":
         ax.plot_date(x = dates[fromIdx:toIdx], y = temps['hres'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
