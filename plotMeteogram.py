@@ -175,11 +175,16 @@ def plotWindBft(ax, qdata, fromIdx, toIdx, plotType):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
 
-def plotCloudVSUP(ax, qdata, fromIdx, toIdx):
+def plotCloudVSUP(ax, qdata, fromIdx, toIdx, plotType):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
-    vsupFilenames = ["cloud_step1_variant.svg.png", "Stufe2_eherSonnig.png", "Stufe2_eherBewoelkt.png", "Stufe3_klarerHimmel.png", "Stufe3_leichtBedeckt.png", "Stufe3_mittlereBewoelkung.png", "Stufe3_starkBewoelkt.png"]
-    files = [vsupFilenames[getVSUPCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
-    image_path = './pictogram/cloud/'
+    if plotType == "enhanced-hres":
+        vsupFilenames = ["Stufe1_klarerHimmel.png", "Stufe2_klarerHimmel.png", "Stufe3_klarerHimmel.png", "Stufe1_leichtBedeckt.png", "Stufe2_leichtBedeckt.png", "Stufe3_leichtBedeckt.png", "Stufe1_mittlereBewoelkung.png", "Stufe2_mittlereBewoelkung.png", "Stufe3_mittlereBewoelkung.png", "Stufe1_starkBewoelkt.png", "Stufe2_starkBewoelkt.png", "Stufe3_starkBewoelkt.png"]
+        files = [vsupFilenames[getHresCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
+        image_path = './pictogram/cloud/enhanced_hres/'
+    else:
+        vsupFilenames = ["cloud_step1_variant.svg.png", "Stufe2_eherSonnig.png", "Stufe2_eherBewoelkt.png", "Stufe3_klarerHimmel.png", "Stufe3_leichtBedeckt.png", "Stufe3_mittlereBewoelkung.png", "Stufe3_starkBewoelkt.png"]
+        files = [vsupFilenames[getVSUPCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
+        image_path = './pictogram/cloud/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
     if zoomFactor > 0.5:
         zoomFactor = 0.5
@@ -206,6 +211,36 @@ def imscatter(x, y, image, ax=None, zoom=1):
     ax.update_datalim(np.column_stack([x, y]))
     ax.autoscale()
     return artists
+
+def getHresCloudCoordinate(qdata):
+    if qdata['hres'] < 0.1:#no cloud 0-2
+        if(qdata['ninety'] < 0.1):
+            return 2
+        elif(qdata['median'] < 0.1):
+            return 1
+        else:
+            return 0
+    if qdata['hres'] < 0.5:#light clouds 3-5
+        if(qdata['ninety'] < 0.5):
+            return 5
+        elif(qdata['median'] < 0.5):
+            return 4
+        else:
+            return 3
+    if qdata['hres'] > 0.9:#strong clouds 9-11
+        if(qdata['ten'] > 0.9):
+            return 11
+        elif(qdata['median'] > 0.9):
+            return 10
+        else:
+            return 9
+    else: #medium wind 6-8
+        if(qdata['ten'] > 0.5):
+            return 5
+        elif(qdata['median'] > 0.5):
+            return 4
+        else:
+            return 3
 
 def getVSUPCloudCoordinate(qdata):
     #print(qdata)
@@ -376,7 +411,7 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType):
     ax2 = fig.add_subplot(gs[1])
     ax3 = fig.add_subplot(gs[2])
     ax4 = fig.add_subplot(gs[3])
-    plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex)
+    plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex, plotType)
     plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex, plotType)
     plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName, plotType)
     plotWindBft(ax4, allMeteogramData['ws']['ws'], fromIndex, toIndex, plotType)
@@ -387,14 +422,17 @@ if __name__ == '__main__':
     #today = datetime.date.today()
     today = datetime.utcnow()
     days = 3
+    plotType = "ensemble"
     if len(sys.argv) > 1:
         print(sys.argv)
         from downloadJsonData import getData, getCoordinates
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "hd:", ["days=", "lat=", "lon=", "location="])
+            opts, args = getopt.getopt(sys.argv[1:], "hd:", ["days=", "lat=", "lon=", "location=", "ensemble", "hres"])
         except getopt.GetoptError:
             print("downloadJsonData.py --location 'Braunschweig, Germany'")
             print("downloadJsonData.py --lat 20 --lon 10")
+            print("downloadJsonData.py --ensemble")
+            print("downloadJsonData.py --hres")
             sys.exit(2)
         #opts = [i for i in opts]
         #print(opts)
@@ -404,9 +442,15 @@ if __name__ == '__main__':
             if opt == "-h":
                 print("downloadJsonData.py --location 'Braunschweig, Germany'")
                 print("downloadJsonData.py --lat 20 --lon 10")
+                print("downloadJsonData.py --ensemble")
+                print("downloadJsonData.py --hres")
                 sys.exit(0)
             elif opt == "--days" or opt == "-d":
                 days = int(arg)
+            elif opt == "--ensemble":
+                plotType = "ensemble"
+            elif opt == "--hres":
+                plotType = "enhanced-hres"
     else:
         latitude = 52.2646577
         longitude = 10.5236066
@@ -424,7 +468,7 @@ if __name__ == '__main__':
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
     fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(days))
-    fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, "enhanced-hres")
+    fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType)
     if location is None:
         location = ""
     fig.suptitle(location + " " + str(np.round(latitude, decimals = 5)) +\
