@@ -158,11 +158,16 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
                     verticalalignment = "center",
                     color = "white", fontproperties=prop)
 
-def plotWindBft(ax, qdata, fromIdx, toIdx):
+def plotWindBft(ax, qdata, fromIdx, toIdx, plotType):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
-    vsupFilenames = ["wind_step1_variant.svg.png", "Stufe2_kaumWind.png", "Stufe2_vielWind.png", "Stufe3_Windstille.png", "Stufe3_leichterWind.png", "Stufe3_starkerWind.png", "Stufe3_Sturm.png"]
-    files = [vsupFilenames[getVSUPWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
-    image_path = './pictogram/wind/'
+    if plotType == "enhanced-hres":
+        vsupFilenames = ["Stufe1_Windstille.png", "Stufe2_Windstille.png", "Stufe3_Windstille.png", "Stufe1_leichterWind.png", "Stufe2_leichterWind.png", "Stufe3_leichterWind.png", "Stufe1_starkerWind.png", "Stufe2_starkerWind.png", "Stufe3_starkerWind.png", "Stufe1_Sturm.png", "Stufe2_Sturm.png", "Stufe3_Sturm.png"]
+        files = [vsupFilenames[getHresWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
+        image_path = './pictogram/wind/enhanced_hres/'
+    else:
+        vsupFilenames = ["wind_step1_variant.svg.png", "Stufe2_kaumWind.png", "Stufe2_vielWind.png", "Stufe3_Windstille.png", "Stufe3_leichterWind.png", "Stufe3_starkerWind.png", "Stufe3_Sturm.png"]
+        files = [vsupFilenames[getVSUPWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
+        image_path = './pictogram/wind/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
     if zoomFactor > 0.5:
         zoomFactor = 0.5
@@ -221,6 +226,36 @@ def getVSUPCloudCoordinate(qdata):
         return(2)
     return(0)
 
+def getHresWindCoordinate(qdata):
+    if qdata['hres'] < 3:#no wind 0-2
+        if(qdata['ninety'] < 3):
+            return 2
+        elif(qdata['median'] < 3):
+            return 1
+        else:
+            return 0
+    if qdata['hres'] < 10:#light wind 3-5
+        if(qdata['ninety'] < 10):
+            return 5
+        elif(qdata['median'] < 10):
+            return 4
+        else:
+            return 3
+    if qdata['hres'] > 17.2:#strong wind 9-11
+        if(qdata['ten'] > 17.2):
+            return 11
+        elif(qdata['median'] > 17.2):
+            return 10
+        else:
+            return 9
+    else: #medium wind 6-8
+        if(qdata['ten'] > 10):
+            return 5
+        elif(qdata['median'] > 10):
+            return 4
+        else:
+            return 3
+
 def getVSUPWindCoordinate(qdata):
     #print(qdata)
     #print(qdata[1])
@@ -239,6 +274,7 @@ def getVSUPWindCoordinate(qdata):
     if qdata['twenty_five'] > 10:
         return(2)
     return(0)
+
 def getHresrainCoordinate(qdata):
     #print(qdata)
     #print(qdata[1])
@@ -343,7 +379,7 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType):
     plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex)
     plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex, plotType)
     plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName, plotType)
-    plotWindBft(ax4, allMeteogramData['ws']['ws'], fromIndex, toIndex)
+    plotWindBft(ax4, allMeteogramData['ws']['ws'], fromIndex, toIndex, plotType)
     return fig
 
 
