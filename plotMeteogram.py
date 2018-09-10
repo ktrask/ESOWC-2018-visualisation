@@ -79,7 +79,7 @@ def getWeekdayString(day):
     if day == 6:
         return "Sunday"
 
-def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
+def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
     startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
     startDate = pytz.timezone('UTC').localize(startDate)
     if tzName:
@@ -94,6 +94,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
     temps['ten'] = np.array(qdata['2t']['ten']) - 273.15
     temps['ninety'] = np.array(qdata['2t']['ninety']) - 273.15
+    temps['hres'] = np.array(qdata['2t']['hres']) - 273.15
     #eighty_spread = temps['ninety'] - temps['ten']
     #alphaChannel = 2 / eighty_spread
     #alphaChannel[alphaChannel > 1] = 1
@@ -101,7 +102,10 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName):
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['min'][fromIdx:toIdx], y2=temps['max'][fromIdx:toIdx], color="#85cbcfff", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['ten'][fromIdx:toIdx], y2=temps['ninety'][fromIdx:toIdx], color="#348292ff", alpha = 0.5)
     ax.fill_between(x= dates[fromIdx:toIdx], y1= temps['twenty_five'][fromIdx:toIdx], y2=temps['seventy_five'][fromIdx:toIdx], color="#004e5eff", alpha = 0.5)
-    ax.plot_date(x = dates[fromIdx:toIdx], y = temps['median'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
+    if plotType == "ensembles":
+        ax.plot_date(x = dates[fromIdx:toIdx], y = temps['median'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
+    elif plotType == "enhanced-hres":
+        ax.plot_date(x = dates[fromIdx:toIdx], y = temps['hres'][fromIdx:toIdx], color="black", linestyle="solid", marker=None)
     dottedHours = getDottedHours(dates[fromIdx], dates[toIdx-1])
     ymin, ymax = ax.get_ylim()
     yscale = ymax-ymin
@@ -235,6 +239,38 @@ def getVSUPWindCoordinate(qdata):
     if qdata['twenty_five'] > 10:
         return(2)
     return(0)
+def getHresrainCoordinate(qdata):
+    #print(qdata)
+    #print(qdata[1])
+    if qdata['hres'] < 1e-4:#no rain 0-2
+        if(qdata['ninety'] < 1e-4):
+            return 2
+        elif(qdata['median'] < 1e-4):
+            return 1
+        else:
+            return 0
+    if qdata['hres'] < 1e-3:#light rain 3-5
+        if(qdata['ninety'] < 1e-3):
+            return 5
+        elif(qdata['median'] < 1e-3):
+            return 4
+        else:
+            return 3
+    if qdata['hres'] > 2e-3:#strong rain 9-11
+        if(qdata['ten'] > 2e-3):
+            return 11
+        elif(qdata['median'] > 2e-3):
+            return 10
+        else:
+            return 9
+    else: #medium rain 6-8
+        if(qdata['ten'] > 1e-3):
+            return 5
+        elif(qdata['median'] > 1e-3):
+            return 4
+        else:
+            return 3
+        pass
 
 def getVSUPrainCoordinate(qdata):
     #print(qdata)
@@ -255,11 +291,16 @@ def getVSUPrainCoordinate(qdata):
         return(2)
     return(0)
 
-def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx):
+def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx, plotType):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
-    vsupFilenames = ["Rain_step1_variant.svg.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe3_Starkregen.png"]
-    files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
-    image_path = './pictogram/rain/'
+    if plotType == "enhanced-hres":
+        hresFilenames = ["Stufe1_KeinRegen.png", "Stufe2_KeinRegen.png", "Stufe3_KeinRegen.png", "Stufe1_leichterRegen.png", "Stufe2_leichterRegen.png", "Stufe3_leichterRegen.png", "Stufe1_MittlererRegen.png", "Stufe2_MittlererRegen.png", "Stufe3_MittlererRegen.png", "Stufe1_Starkregen.png", "Stufe2_Starkregen.png",  "Stufe3_Starkregen.png"]
+        files = [hresFilenames[getHresrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
+        image_path = './pictogram/rain/enhanced_hres/'
+    else:
+        vsupFilenames = ["Rain_step1_variant.svg.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe3_Starkregen.png"]
+        files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
+        image_path = './pictogram/rain/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
     if zoomFactor > 0.5:
         zoomFactor = 0.5
@@ -292,7 +333,7 @@ def getTimeFrame(allMeteogramData,fromDate, toDate):
     #print(fromIndex)
     return (fromIndex, toIndex)
 
-def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName):
+def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType):
     fig = plt.figure(figsize=(14,6))
     gs = gridspec.GridSpec(4, 1, height_ratios=[1, 1, 4, 1])
     ax1 = fig.add_subplot(gs[0])
@@ -300,8 +341,8 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName):
     ax3 = fig.add_subplot(gs[2])
     ax4 = fig.add_subplot(gs[3])
     plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex)
-    plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex)
-    plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName)
+    plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex, plotType)
+    plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName, plotType)
     plotWindBft(ax4, allMeteogramData['ws']['ws'], fromIndex, toIndex)
     return fig
 
@@ -347,7 +388,7 @@ if __name__ == '__main__':
     tz = tzwhere.tzwhere()
     tzName = tz.tzNameAt(latitude, longitude)
     fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(days))
-    fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
+    fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, "enhanced-hres")
     if location is None:
         location = ""
     fig.suptitle(location + " " + str(np.round(latitude, decimals = 5)) +\
