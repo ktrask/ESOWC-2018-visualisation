@@ -1,6 +1,6 @@
 from flask import render_template,flash, redirect, request, jsonify
 from flask_wtf import FlaskForm
-from wtforms import TextField, validators, SubmitField, DecimalField, IntegerField
+from wtforms import TextField, validators, SubmitField, DecimalField, IntegerField, RadioField
 from app import app, controller
 #from .models import 
 from random import randint
@@ -14,11 +14,15 @@ class searchForm(FlaskForm):
     lat = DecimalField("Latitude", [validators.Optional()])
     lon = DecimalField("Longitude",[validators.Optional()])
     days = IntegerField("Length of Meteogram in Days", default=3)
+    plotType = RadioField("Plottype", choices=[
+         ('ensemble', "Pure Ensemble Data"),
+         ('enhanced-hres', "HRES Enhanced Ensemble Data")],
+         default = 'ensemble', validators=[validators.Required()])
     submit = SubmitField('Go!')
 
 @app.route('/', methods=("GET", "POST"))
 def index():
-    form = searchForm(csrf_enable=False)
+    form = searchForm(csrf_enable=True)
     if form.validate_on_submit():
         return redirect('/search')
     return render_template("index.html",
@@ -37,7 +41,7 @@ def getInformation():
 def search():
     #print('latitude: ' +  request.form['latitude'])
     #print('longitude: ' + request.form['longitude'])
-    form = searchForm(csrf_enable=False)
+    form = searchForm(csrf_enable=True)
     if form.validate_on_submit():
         #print(form.search.data)
         #print(form.days.data)
@@ -47,13 +51,15 @@ def search():
         print('location: ' +  searchLocation)
         filename = plotMeteogramFile(latitude = latitude, longitude = longitude,
                                      location = searchLocation,
-                                     days = form.days.data)
+                                     days = form.days.data,
+                                     plotType = form.plotType.data)
         with open("/tmp/"+filename, "rb") as fp:
             fileContent = b64encode(fp.read())
         #return jsonify( filename )
         os.remove("/tmp/"+filename)
         return render_template("meteogram.html",
                 form = form,
+                plotType = form.plotType.data,
                 image = 'data:image/png;base64,{}'.format(fileContent.decode())
                 )
     else:

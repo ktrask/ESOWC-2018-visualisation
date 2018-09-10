@@ -11,8 +11,9 @@ import numpy as np
 
 tz = tzwhere.tzwhere()
 
-def plotMeteogramFile(latitude = None, longitude = None, location = None, days = 3):
+def plotMeteogramFile(latitude = None, longitude = None, location = None, days = 3, plotType = "enhanced-hres"):
     print(latitude, longitude)
+    print(plotType)
     if location:
         latitude, longitude, altitude, _ = getCoordinates([("--location", location)])
     elif latitude is not None and longitude is not None:
@@ -31,7 +32,7 @@ def plotMeteogramFile(latitude = None, longitude = None, location = None, days =
     tzName = tz.tzNameAt(latitude, longitude)
     today = datetime.utcnow()
     fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(days))
-    fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName)
+    fig = plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType)
     filename = str(today) + str(latitude) + str(longitude) + "forecast.png"
     tmpSize = prop.get_size()
     prop.set_size(16)
