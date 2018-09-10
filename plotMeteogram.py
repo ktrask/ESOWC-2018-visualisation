@@ -117,7 +117,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
         ymin -= tmp
         ymax += tmp
         yscale = 4
-        ax.set_ylim(ymin-tmp,ymax+tmp)
+        ax.set_ylim(ymin-2*tmp,ymax+2*tmp)
     #print(dottedHours)
     yscale = yscale / 7
     ax.vlines(dottedHours, ymin, ymax, linestyle = ':', color = "gray")
@@ -132,16 +132,21 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
     ax.axis('off')
     #ax.box(on=None)
     #ax.get_xaxis().set_visible(False)
-    localMinima = np.r_[True, temps['median'][1:] < temps['median'][:-1]] & np.r_[temps['median'][:-1] < temps['median'][1:], True]
-    #print(localMinima)
-    #print(np.r_[temps['median'][1:] < temps['median'][:-1]])
-    #print(np.r_[temps['median'][:-1] < temps['median'][1:]])
-    localMaxima = np.r_[True, temps['median'][1:] > temps['median'][:-1]] & np.r_[temps['median'][:-1] > temps['median'][1:], True]
+    if plotType == "ensemble":
+        localMinima = np.r_[True, temps['median'][1:] < temps['median'][:-1]] & np.r_[temps['median'][:-1] < temps['median'][1:], True]
+        localMaxima = np.r_[True, temps['median'][1:] > temps['median'][:-1]] & np.r_[temps['median'][:-1] > temps['median'][1:], True]
+    elif plotType == "enhanced-hres":
+        localMinima = np.r_[True, temps['hres'][1:] < temps['hres'][:-1]] & np.r_[temps['hres'][:-1] < temps['hres'][1:], True]
+        localMaxima = np.r_[True, temps['hres'][1:] > temps['hres'][:-1]] & np.r_[temps['hres'][:-1] > temps['hres'][1:], True]
+        yscale /= 1.6
     #print(localMaxima)
     for i in range(fromIdx,toIdx):
         if localMinima[i]:
             date = dates[i]
-            temp = temps['median'][i]
+            if plotType == "ensemble":
+                temp = temps['median'][i]
+            elif plotType == "enhanced-hres":
+                temp = temps['hres'][i]
             #print(date)
             ax.scatter(date, temp - yscale, s=300, color = "darkcyan")
             ax.text(date, temp - yscale, str(int(np.round(temp))),
@@ -150,7 +155,10 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
                     color = 'white', fontproperties=prop)
         if localMaxima[i]:
             date = dates[i]
-            temp = temps['median'][i]
+            if plotType == "ensemble":
+                temp = temps['median'][i]
+            elif plotType == "enhanced-hres":
+                temp = temps['hres'][i]
             #print(date)
             ax.scatter(date, temp + yscale, s=300, color = "orange")
             ax.text(date, temp + yscale, str(int(np.round(temp))),
