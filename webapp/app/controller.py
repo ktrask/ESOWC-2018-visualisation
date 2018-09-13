@@ -37,11 +37,11 @@ def plotMeteogramFile(latitude = None, longitude = None, location = None, days =
     tmpSize = prop.get_size()
     prop.set_size(16)
     print(tmpSize)
-    fig.suptitle(location + " " + str(np.round(latitude, decimals = 5)) +\
-                  "°/" + str(np.round(longitude, decimals = 5)) +\
+    fig.suptitle(location + " " + str(np.round(latitude, decimals = 2)) +\
+                  "°/" + str(np.round(longitude, decimals = 2)) +\
                   "°/" + str(altitude) + "m", fontproperties=prop)
     prop.set_size(tmpSize)
-    fig.text(0.1,0.03,allMeteogramData['2t']['date']+"-"+allMeteogramData['2t']['time'],fontproperties=prop)
-    fig.savefig("/tmp/" + filename, dpi=300)
+    fig.text(0.2,0.06,"Forecast from the European Weather Centre from " + allMeteogramData['2t']['date']+" at "+allMeteogramData['2t']['time'][0:2] + ":" + allMeteogramData['2t']['time'][0:2] + " UTC",fontproperties=prop)
+    fig.savefig("/tmp/" + filename, dpi=300, bbox_inches = 'tight')
     pltclose(fig)
     return filename

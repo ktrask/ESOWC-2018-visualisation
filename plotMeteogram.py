@@ -177,8 +177,8 @@ def plotWindBft(ax, qdata, fromIdx, toIdx, plotType):
         files = [vsupFilenames[getVSUPWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/wind/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.5:
-        zoomFactor = 0.5
+    if zoomFactor > 0.45:
+        zoomFactor = 0.45
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
@@ -194,8 +194,8 @@ def plotCloudVSUP(ax, qdata, fromIdx, toIdx, plotType):
         files = [vsupFilenames[getVSUPCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/cloud/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.5:
-        zoomFactor = 0.5
+    if zoomFactor > 0.45:
+        zoomFactor = 0.45
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
@@ -344,11 +344,11 @@ def getHresrainCoordinate(qdata):
             return 9
     else: #medium rain 6-8
         if(qdata['ten'] > 1e-3):
-            return 5
+            return 8
         elif(qdata['median'] > 1e-3):
-            return 4
+            return 7
         else:
-            return 3
+            return 6
         pass
 
 def getVSUPrainCoordinate(qdata):
@@ -381,8 +381,8 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx, plotType):
         files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/rain/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.5:
-        zoomFactor = 0.5
+    if zoomFactor > 0.45:
+        zoomFactor = 0.45
     print(zoomFactor)
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
