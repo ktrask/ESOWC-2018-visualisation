@@ -94,7 +94,8 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
     temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
     temps['ten'] = np.array(qdata['2t']['ten']) - 273.15
     temps['ninety'] = np.array(qdata['2t']['ninety']) - 273.15
-    temps['hres'] = np.array(qdata['2t']['hres']) - 273.15
+    if plotType == "enhanced_hres":
+        temps['hres'] = np.array(qdata['2t']['hres']) - 273.15
     #eighty_spread = temps['ninety'] - temps['ten']
     #alphaChannel = 2 / eighty_spread
     #alphaChannel[alphaChannel > 1] = 1
@@ -446,7 +447,26 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType):
     elif 'tp24' in allMeteogramData:#15days daily meteogram
         plotCloudVSUP(ax1, allMeteogramData['tcc24']['tcc24'], fromIndex, toIndex, plotType)
         plotPrecipitationVSUP(ax2, allMeteogramData['tp24']['tp24'], fromIndex, toIndex, plotType)
-        #plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName, plotType)
+        dictNew = {'time':allMeteogramData['mn2t24']['time'],
+           'date': allMeteogramData['mx2t24']['date'],
+           '2t': {}}
+        for key in ['max','median','min','ninety','seventy_five','ten','twenty_five']:
+            tmpList = []
+            for mn, mx in zip(allMeteogramData['mn2t24']['mn2t24'][key],allMeteogramData['mx2t24']['mx2t24'][key]):
+                tmpList.append(mn)
+                tmpList.append(mx)
+            dictNew['2t'][key] = tmpList
+        startDate = datetime(int(dictNew['date'][0:4]),int(dictNew['date'][4:6]),int(dictNew['date'][6:8]))
+        startDate = pytz.timezone('UTC').localize(startDate)
+        if tzName:
+            startDate = startDate.astimezone(pytz.timezone(tzName))
+        steps = [28 - startDate.utcoffset().total_seconds()/3600]
+        print(steps)
+        for _ in range(1,len(dictNew['2t']['max'])):
+            steps.append(steps[-1]+12)
+        dictNew['2t']['steps'] = steps
+        allMeteogramData['2t'] = dictNew
+        plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex + (toIndex+fromIndex), tzName, plotType)
         plotWindBft(ax4, allMeteogramData['ws24']['ws24'], fromIndex, toIndex, plotType)
     return fig
 
@@ -513,12 +533,12 @@ if __name__ == '__main__':
 
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(10))
     #plt.gcf().autofmt_xdate()
-    logofile = './logo/ECMWF.png'
-    logo = plt.imread(logofile)
-    fig.figimage(logo, 30, 1700)
-    logofile = './logo/ESoWC.png'
-    logo = plt.imread(logofile)
-    fig.figimage(logo, 0, 400)
+    #logofile = './logo/ECMWF.png'
+    #logo = plt.imread(logofile)
+    #fig.figimage(logo, 30, 1700)
+    #logofile = './logo/ESoWC.png'
+    #logo = plt.imread(logofile)
+    #fig.figimage(logo, 0, 400)
     if '2t' in allMeteogramData:
         fig.text(0.1,0.03,allMeteogramData['2t']['date']+"-"+allMeteogramData['2t']['time'],fontproperties=prop)
     if 'tp24' in allMeteogramData:
