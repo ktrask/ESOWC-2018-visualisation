@@ -94,7 +94,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
     temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
     temps['ten'] = np.array(qdata['2t']['ten']) - 273.15
     temps['ninety'] = np.array(qdata['2t']['ninety']) - 273.15
-    if plotType == "enhanced_hres":
+    if plotType == "enhanced-hres":
         temps['hres'] = np.array(qdata['2t']['hres']) - 273.15
     #eighty_spread = temps['ninety'] - temps['ten']
     #alphaChannel = 2 / eighty_spread
