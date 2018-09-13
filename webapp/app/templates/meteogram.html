@@ -16,13 +16,17 @@
   </div>
   <div class="row">
     <div class="col-sm-4">
+      <img src={{url_for('.static', filename='ecmwf.png')}} />
     </div>
     <div class="col-sm-4">
       {% if 'ensemble' in plotType %}
-        <img src={{url_for('.static', filename='vsup_all.png')}} /> <!-- width="100%" height="100%" />-->
+        <img src={{url_for('.static', filename='vsup_all.png')}} />
+      {% else %}
+        <img src={{url_for('.static', filename='hres_legend.png')}} />
       {% endif %}
     </div>
     <div class="col-sm-4">
+      <img align="right" src={{url_for('.static', filename='esowc.png')}} />
     </div>
   </div>
   <div class="row">

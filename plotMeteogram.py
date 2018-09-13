@@ -169,7 +169,8 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
 def plotWindBft(ax, qdata, fromIdx, toIdx, plotType):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
     if plotType == "enhanced-hres":
-        vsupFilenames = ["Stufe1_Windstille.png", "Stufe2_Windstille.png", "Stufe3_Windstille.png", "Stufe1_leichterWind.png", "Stufe2_leichterWind.png", "Stufe3_leichterWind.png", "Stufe1_starkerWind.png", "Stufe2_starkerWind.png", "Stufe3_starkerWind.png", "Stufe1_Sturm.png", "Stufe2_Sturm.png", "Stufe3_Sturm.png"]
+        #vsupFilenames = ["Stufe1_Windstille.png", "Stufe2_Windstille.png", "Stufe3_Windstille.png", "Stufe1_leichterWind.png", "Stufe2_leichterWind.png", "Stufe3_leichterWind.png", "Stufe1_starkerWind.png", "Stufe2_starkerWind.png", "Stufe3_starkerWind.png", "Stufe1_Sturm.png", "Stufe2_Sturm.png", "Stufe3_Sturm.png"]
+        vsupFilenames = ["Stufe1_Windstille.png", "Stufe2_Windstille.png", "Stufe3_Windstille.png", "Stufe4_Windstille.png", "Stufe1_leichterWind.png", "Stufe2_leichterWind.png", "Stufe3_leichterWind.png", "Stufe4_leichterWind.png", "Stufe1_starkerWind.png", "Stufe2_starkerWind.png", "Stufe3_starkerWind.png", "Stufe4_starkerWind.png", "Stufe1_Sturm.png", "Stufe2_Sturm.png", "Stufe3_Sturm.png", "Stufe4_Sturm.png"]
         files = [vsupFilenames[getHresWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/wind/enhanced_hres/'
     else:
@@ -186,7 +187,8 @@ def plotWindBft(ax, qdata, fromIdx, toIdx, plotType):
 def plotCloudVSUP(ax, qdata, fromIdx, toIdx, plotType):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
     if plotType == "enhanced-hres":
-        vsupFilenames = ["Stufe1_klarerHimmel.png", "Stufe2_klarerHimmel.png", "Stufe3_klarerHimmel.png", "Stufe1_leichtBedeckt.png", "Stufe2_leichtBedeckt.png", "Stufe3_leichtBedeckt.png", "Stufe1_mittlereBewoelkung.png", "Stufe2_mittlereBewoelkung.png", "Stufe3_mittlereBewoelkung.png", "Stufe1_starkBewoelkt.png", "Stufe2_starkBewoelkt.png", "Stufe3_starkBewoelkt.png"]
+        #vsupFilenames = ["Stufe1_klarerHimmel.png", "Stufe2_klarerHimmel.png", "Stufe3_klarerHimmel.png", "Stufe1_leichtBedeckt.png", "Stufe2_leichtBedeckt.png", "Stufe3_leichtBedeckt.png", "Stufe1_mittlereBewoelkung.png", "Stufe2_mittlereBewoelkung.png", "Stufe3_mittlereBewoelkung.png", "Stufe1_starkBewoelkt.png", "Stufe2_starkBewoelkt.png", "Stufe3_starkBewoelkt.png"]
+        vsupFilenames = ["Stufe1_klarerHimmel.png", "Stufe2_klarerHimmel.png", "Stufe3_klarerHimmel.png", "Stufe4_klarerHimmel.png", "Stufe1_leichtBedeckt.png", "Stufe2_leichtBedeckt.png", "Stufe3_leichtBedeckt.png", "Stufe4_leichtBedeckt.png", "Stufe1_mittlereBewoelkung.png", "Stufe2_mittlereBewoelkung.png", "Stufe3_mittlereBewoelkung.png", "Stufe4_mittlereBewoelkung.png", "Stufe1_starkBewoelkt.png", "Stufe2_starkBewoelkt.png", "Stufe3_starkBewoelkt.png", "Stufe4_starkBewoelkt.png"]
         files = [vsupFilenames[getHresCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/cloud/enhanced_hres/'
     else:
@@ -221,34 +223,42 @@ def imscatter(x, y, image, ax=None, zoom=1):
     return artists
 
 def getHresCloudCoordinate(qdata):
-    if qdata['hres'] < 0.1:#no cloud 0-2
+    if qdata['hres'] < 0.1:#no cloud 0-3
         if(qdata['ninety'] < 0.1):
-            return 2
+            return 3
         elif(qdata['median'] < 0.1):
+            return 2
+        elif qdata['twenty_five'] < 0.1:
             return 1
         else:
             return 0
-    if qdata['hres'] < 0.5:#light clouds 3-5
+    if qdata['hres'] < 0.5:#light clouds 4-7
         if(qdata['ninety'] < 0.5):
-            return 5
+            return 7
         elif(qdata['median'] < 0.5):
-            return 4
-        else:
-            return 3
-    if qdata['hres'] > 0.9:#strong clouds 9-11
-        if(qdata['ten'] > 0.9):
-            return 11
-        elif(qdata['median'] > 0.9):
-            return 10
-        else:
-            return 9
-    else: #medium wind 6-8
-        if(qdata['ten'] > 0.5):
+            return 6
+        elif(qdata['twenty_five'] < 0.5):
             return 5
-        elif(qdata['median'] > 0.5):
-            return 4
         else:
-            return 3
+            return 4
+    if qdata['hres'] > 0.9:#strong clouds 12-15
+        if(qdata['ten'] > 0.9):
+            return 15
+        elif(qdata['median'] > 0.9):
+            return 14
+        elif(qdata['twenty_five'] > 0.9):
+            return 13
+        else:
+            return 12
+    else: #medium clouds 8-11
+        if(qdata['ten'] > 0.5):
+            return 11
+        elif(qdata['median'] > 0.5):
+            return 10
+        elif(qdata['twenty_five'] > 0.5):
+            return 9
+        else:
+            return 8
 
 def getVSUPCloudCoordinate(qdata):
     #print(qdata)
@@ -270,34 +280,42 @@ def getVSUPCloudCoordinate(qdata):
     return(0)
 
 def getHresWindCoordinate(qdata):
-    if qdata['hres'] < 3:#no wind 0-2
+    if qdata['hres'] < 3:#no wind 0-3
         if(qdata['ninety'] < 3):
-            return 2
+            return 3
         elif(qdata['median'] < 3):
+            return 2
+        elif(qdata['twenty_five'] < 3):
             return 1
         else:
             return 0
-    if qdata['hres'] < 10:#light wind 3-5
+    if qdata['hres'] < 10:#light wind 4-7
         if(qdata['ninety'] < 10):
-            return 5
+            return 7
         elif(qdata['median'] < 10):
-            return 4
-        else:
-            return 3
-    if qdata['hres'] > 17.2:#strong wind 9-11
-        if(qdata['ten'] > 17.2):
-            return 11
-        elif(qdata['median'] > 17.2):
-            return 10
-        else:
-            return 9
-    else: #medium wind 6-8
-        if(qdata['ten'] > 10):
+            return 6
+        elif(qdata['twenty_five'] < 10):
             return 5
-        elif(qdata['median'] > 10):
-            return 4
         else:
-            return 3
+            return 4
+    if qdata['hres'] > 17.2:#strong wind 12-15
+        if(qdata['ten'] > 17.2):
+            return 15
+        elif(qdata['median'] > 17.2):
+            return 14
+        elif(qdata['twenty_five'] > 17.2):
+            return 13
+        else:
+            return 12
+    else: #medium wind 8-11
+        if(qdata['ten'] > 10):
+            return 11
+        elif(qdata['median'] > 10):
+            return 10
+        elif(qdata['twenty_five'] > 10):
+            return 9
+        else:
+            return 8
 
 def getVSUPWindCoordinate(qdata):
     #print(qdata)
@@ -321,34 +339,42 @@ def getVSUPWindCoordinate(qdata):
 def getHresrainCoordinate(qdata):
     #print(qdata)
     #print(qdata[1])
-    if qdata['hres'] < 1e-4:#no rain 0-2
+    if qdata['hres'] < 1e-4:#no rain 0-3
         if(qdata['ninety'] < 1e-4):
-            return 2
+            return 3
         elif(qdata['median'] < 1e-4):
+            return 2
+        elif(qdata['twenty_five'] < 1e-4):
             return 1
         else:
             return 0
-    if qdata['hres'] < 1e-3:#light rain 3-5
+    if qdata['hres'] < 1e-3:#light rain 4-7
         if(qdata['ninety'] < 1e-3):
-            return 5
+            return 7
         elif(qdata['median'] < 1e-3):
-            return 4
-        else:
-            return 3
-    if qdata['hres'] > 2e-3:#strong rain 9-11
-        if(qdata['ten'] > 2e-3):
-            return 11
-        elif(qdata['median'] > 2e-3):
-            return 10
-        else:
-            return 9
-    else: #medium rain 6-8
-        if(qdata['ten'] > 1e-3):
+            return 6
+        elif(qdata['twenty_five'] < 1e-3):
             return 5
-        elif(qdata['median'] > 1e-3):
-            return 4
         else:
-            return 3
+            return 4
+    if qdata['hres'] > 2e-3:#strong rain 12-15
+        if(qdata['ten'] > 2e-3):
+            return 15
+        elif(qdata['median'] > 2e-3):
+            return 14
+        elif(qdata['twenty_five'] > 2e-3):
+            return 13
+        else:
+            return 12
+    else: #medium rain 8-11
+        if(qdata['ten'] > 1e-3):
+            return 11
+        elif(qdata['median'] > 1e-3):
+            return 10
+        elif(qdata['twenty_five'] > 1e-3):
+            return 9
+        else:
+            return 8
         pass
 
 def getVSUPrainCoordinate(qdata):
@@ -373,7 +399,8 @@ def getVSUPrainCoordinate(qdata):
 def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx, plotType):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
     if plotType == "enhanced-hres":
-        hresFilenames = ["Stufe1_KeinRegen.png", "Stufe2_KeinRegen.png", "Stufe3_KeinRegen.png", "Stufe1_leichterRegen.png", "Stufe2_leichterRegen.png", "Stufe3_leichterRegen.png", "Stufe1_MittlererRegen.png", "Stufe2_MittlererRegen.png", "Stufe3_MittlererRegen.png", "Stufe1_Starkregen.png", "Stufe2_Starkregen.png",  "Stufe3_Starkregen.png"]
+        #hresFilenames = ["Stufe1_KeinRegen.png", "Stufe2_KeinRegen.png", "Stufe3_KeinRegen.png", "Stufe1_leichterRegen.png", "Stufe2_leichterRegen.png", "Stufe3_leichterRegen.png", "Stufe1_MittlererRegen.png", "Stufe2_MittlererRegen.png", "Stufe3_MittlererRegen.png", "Stufe1_Starkregen.png", "Stufe2_Starkregen.png",  "Stufe3_Starkregen.png"]
+        hresFilenames = ["Stufe1_KeinRegen.png", "Stufe2_KeinRegen.png", "Stufe3_KeinRegen.png", "Stufe4_KeinRegen.png", "Stufe1_leichterRegen.png", "Stufe2_leichterRegen.png", "Stufe3_leichterRegen.png", "Stufe4_leichterRegen.png", "Stufe1_MittlererRegen.png", "Stufe2_MittlererRegen.png", "Stufe3_MittlererRegen.png", "Stufe4_MittlererRegen.png", "Stufe1_Starkregen.png", "Stufe2_Starkregen.png", "Stufe3_Starkregen.png", "Stufe4_Starkregen.png"]
         files = [hresFilenames[getHresrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/rain/enhanced_hres/'
     else:
