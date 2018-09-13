@@ -21,7 +21,7 @@ api  = { "url": "https://api.ecmwf.int/v1/services/meteogram/requests/",
                  "token": credentials['key']}
 
 
-async def downloadData(session, param,allMeteogramData, longitude, latitude, altitude, writeToFile = True):
+async def downloadData(session, param,allMeteogramData, longitude, latitude, altitude, writeToFile = True, meteogram = "10days"):
     yesterday = datetime.utcnow()
     #if yesterday.hour < 19:
     if yesterday.hour < 8:
@@ -32,7 +32,7 @@ async def downloadData(session, param,allMeteogramData, longitude, latitude, alt
             timeString = "1200"
         #Getting 2-metre temperature data ...
         request =  {
-                            "meteogram": "10days",
+                            "meteogram": meteogram,
                             "param": param,
                             "location": "%f/%f" % (latitude, longitude),
                             "altitude": str(altitude),
@@ -57,6 +57,12 @@ async def main(loop, allMeteogramData, longitude, latitude, altitude, writeToFil
     params = ["2t", "tp", "tcc", "ws", "sf"]
     async with aiohttp.ClientSession(loop=loop) as session:
         tasks = [downloadData(session, param, allMeteogramData, longitude, latitude, altitude, writeToFile) for param in params]
+        await asyncio.gather(*tasks)
+
+async def main15days(loop, allMeteogramData, longitude, latitude, altitude, writeToFile = True):
+    params = ["mx2t24", "mn2t24", "tcc24", "tp24", "ws24"]
+    async with aiohttp.ClientSession(loop=loop) as session:
+        tasks = [downloadData(session, param, allMeteogramData, longitude, latitude, altitude, writeToFile, meteogram = "15days") for param in params]
         await asyncio.gather(*tasks)
 
 def getCoordinates(opts):
@@ -89,13 +95,16 @@ def getCoordinates(opts):
     print(altitude)
     return ( latitude, longitude, altitude, location )
 
-def getData(longitude, latitude, altitude, writeToFile = True):
+def getData(longitude, latitude, altitude, writeToFile = True, meteogram = "10days"):
     allMeteogramData = {}
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
-    loop.run_until_complete(main(loop, allMeteogramData, longitude, latitude, altitude, writeToFile))
+    if meteogram == "10days":
+        loop.run_until_complete(main(loop, allMeteogramData, longitude, latitude, altitude, writeToFile))
+    elif meteogram == "15days":
+        loop.run_until_complete(main15days(loop, allMeteogramData, longitude, latitude, altitude, writeToFile))
     loop.close()
     return allMeteogramData
 

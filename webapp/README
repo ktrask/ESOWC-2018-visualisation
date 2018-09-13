@@ -1,3 +1,9 @@
 pip3 install flask-bootstrap
 pip3 install flask-wtf
+pip3 install altitude
+cd app
+#symlink on linux:
+ln -s ../../downloadJsonData.py downloadJsonData.py
+ls -s ../../plotMeteogram.py plotMeteogram.py
+ln -s ../../pictogram pictogram
 python3 run.py

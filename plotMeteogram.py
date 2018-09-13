@@ -19,7 +19,7 @@ home = str(Path.home())
 
 if os.path.exists(home + "/.fonts/BebasNeue Regular.otf"):
     prop = fm.FontProperties(fname=home+'/.fonts/BebasNeue Regular.otf')
-    prop.set_size(10)
+    prop.set_size(12)
 else:
     prop = fm.FontProperties(family='DejaVu Sans')
 
@@ -94,7 +94,8 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
     temps['seventy_five'] = np.array(qdata['2t']['seventy_five']) - 273.15
     temps['ten'] = np.array(qdata['2t']['ten']) - 273.15
     temps['ninety'] = np.array(qdata['2t']['ninety']) - 273.15
-    temps['hres'] = np.array(qdata['2t']['hres']) - 273.15
+    if plotType == "enhanced_hres":
+        temps['hres'] = np.array(qdata['2t']['hres']) - 273.15
     #eighty_spread = temps['ninety'] - temps['ten']
     #alphaChannel = 2 / eighty_spread
     #alphaChannel[alphaChannel > 1] = 1
@@ -178,8 +179,8 @@ def plotWindBft(ax, qdata, fromIdx, toIdx, plotType):
         files = [vsupFilenames[getVSUPWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/wind/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.5:
-        zoomFactor = 0.5
+    if zoomFactor > 0.45:
+        zoomFactor = 0.45
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
@@ -196,8 +197,8 @@ def plotCloudVSUP(ax, qdata, fromIdx, toIdx, plotType):
         files = [vsupFilenames[getVSUPCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/cloud/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.5:
-        zoomFactor = 0.5
+    if zoomFactor > 0.45:
+        zoomFactor = 0.45
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
     ax.axis('off')
@@ -408,8 +409,8 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx, plotType):
         files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/rain/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
-    if zoomFactor > 0.5:
-        zoomFactor = 0.5
+    if zoomFactor > 0.45:
+        zoomFactor = 0.45
     print(zoomFactor)
     for (idx, filename) in zip(range(0,len(files)),files):
         imscatter(idx,1, image_path+filename, ax=ax, zoom = zoomFactor)
@@ -418,23 +419,42 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx, plotType):
 
 def getTimeFrame(allMeteogramData,fromDate, toDate):
     #print(allMeteogramData)
-    qdata = allMeteogramData['2t']
-    startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]), int(qdata['time'][0:2]))
-    dates = [startDate + timedelta(hours=int(i)) for i in qdata['2t']['steps']]
-    fromIndex = 0
-    if fromDate:
-        for date in dates:
-            if date < fromDate:
-                fromIndex += 1
-            else:
-                break
-    toIndex = len(allMeteogramData['2t']['2t']['steps'])
-    if toDate:
-        for date in dates[::-1]:
-            if date < toDate:
-                break
-            else:
-                toIndex -= 1
+    if '2t' in allMeteogramData:
+        qdata = allMeteogramData['2t']
+        startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]), int(qdata['time'][0:2]))
+        dates = [startDate + timedelta(hours=int(i)) for i in qdata['2t']['steps']]
+        fromIndex = 0
+        if fromDate:
+            for date in dates:
+                if date < fromDate:
+                    fromIndex += 1
+                else:
+                    break
+        toIndex = len(allMeteogramData['2t']['2t']['steps'])
+        if toDate:
+            for date in dates[::-1]:
+                if date < toDate:
+                    break
+                else:
+                    toIndex -= 1
+    elif 'tp24' in allMeteogramData:
+        qdata = allMeteogramData['tp24']
+        startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]), int(qdata['time'][0:2]))
+        dates = [startDate + timedelta(int(i)) for i in range(1,16)]
+        fromIndex = 0
+        if fromDate:
+            for date in dates:
+                if date < fromDate:
+                    fromIndex += 1
+                else:
+                    break
+        toIndex = 15
+        if toDate:
+            for date in dates[::-1]:
+                if date < toDate:
+                    break
+                else:
+                    toIndex -= 1
     #print(toIndex)
     #print(fromIndex)
     return (fromIndex, toIndex)
@@ -446,10 +466,35 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType):
     ax2 = fig.add_subplot(gs[1])
     ax3 = fig.add_subplot(gs[2])
     ax4 = fig.add_subplot(gs[3])
-    plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex, plotType)
-    plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex, plotType)
-    plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName, plotType)
-    plotWindBft(ax4, allMeteogramData['ws']['ws'], fromIndex, toIndex, plotType)
+    if 'tp' in allMeteogramData:#10days 6hourly meteogram
+        plotCloudVSUP(ax1, allMeteogramData['tcc']['tcc'], fromIndex, toIndex, plotType)
+        plotPrecipitationVSUP(ax2, allMeteogramData['tp']['tp'], fromIndex, toIndex, plotType)
+        plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex, tzName, plotType)
+        plotWindBft(ax4, allMeteogramData['ws']['ws'], fromIndex, toIndex, plotType)
+    elif 'tp24' in allMeteogramData:#15days daily meteogram
+        plotCloudVSUP(ax1, allMeteogramData['tcc24']['tcc24'], fromIndex, toIndex, plotType)
+        plotPrecipitationVSUP(ax2, allMeteogramData['tp24']['tp24'], fromIndex, toIndex, plotType)
+        dictNew = {'time':allMeteogramData['mn2t24']['time'],
+           'date': allMeteogramData['mx2t24']['date'],
+           '2t': {}}
+        for key in ['max','median','min','ninety','seventy_five','ten','twenty_five']:
+            tmpList = []
+            for mn, mx in zip(allMeteogramData['mn2t24']['mn2t24'][key],allMeteogramData['mx2t24']['mx2t24'][key]):
+                tmpList.append(mn)
+                tmpList.append(mx)
+            dictNew['2t'][key] = tmpList
+        startDate = datetime(int(dictNew['date'][0:4]),int(dictNew['date'][4:6]),int(dictNew['date'][6:8]))
+        startDate = pytz.timezone('UTC').localize(startDate)
+        if tzName:
+            startDate = startDate.astimezone(pytz.timezone(tzName))
+        steps = [28 - startDate.utcoffset().total_seconds()/3600]
+        print(steps)
+        for _ in range(1,len(dictNew['2t']['max'])):
+            steps.append(steps[-1]+12)
+        dictNew['2t']['steps'] = steps
+        allMeteogramData['2t'] = dictNew
+        plotTemperature(ax3, allMeteogramData['2t'], fromIndex, toIndex + (toIndex+fromIndex), tzName, plotType)
+        plotWindBft(ax4, allMeteogramData['ws24']['ws24'], fromIndex, toIndex, plotType)
     return fig
 
 
@@ -472,7 +517,6 @@ if __name__ == '__main__':
         #opts = [i for i in opts]
         #print(opts)
         latitude, longitude, altitude, location = getCoordinates(opts)
-        allMeteogramData = getData(float(longitude), float(latitude), altitude, writeToFile = False)
         for opt, arg in opts:
             if opt == "-h":
                 print("downloadJsonData.py --location 'Braunschweig, Germany'")
@@ -486,6 +530,10 @@ if __name__ == '__main__':
                 plotType = "ensemble"
             elif opt == "--hres":
                 plotType = "enhanced-hres"
+        if days <= 10:
+            allMeteogramData = getData(float(longitude), float(latitude), altitude, writeToFile = False)
+        else:
+            allMeteogramData = getData(float(longitude), float(latitude), altitude, writeToFile = False, meteogram = "15days")
     else:
         latitude = 52.2646577
         longitude = 10.5236066
@@ -512,6 +560,15 @@ if __name__ == '__main__':
 
     #fromIndex, toIndex = getTimeFrame(allMeteogramData, today, today + timedelta(10))
     #plt.gcf().autofmt_xdate()
-    fig.text(0.1,0.03,allMeteogramData['2t']['date']+"-"+allMeteogramData['2t']['time'],fontproperties=prop)
+    #logofile = './logo/ECMWF.png'
+    #logo = plt.imread(logofile)
+    #fig.figimage(logo, 30, 1700)
+    #logofile = './logo/ESoWC.png'
+    #logo = plt.imread(logofile)
+    #fig.figimage(logo, 0, 400)
+    if '2t' in allMeteogramData:
+        fig.text(0.1,0.03,allMeteogramData['2t']['date']+"-"+allMeteogramData['2t']['time'],fontproperties=prop)
+    if 'tp24' in allMeteogramData:
+        fig.text(0.1,0.03,allMeteogramData['tp24']['date']+"-"+allMeteogramData['tp24']['time'],fontproperties=prop)
     fig.savefig("./output/forecast.png", dpi = 300)
 
