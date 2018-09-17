@@ -272,22 +272,18 @@ def getHresCloudCoordinate(qdata):
             return 8
 
 def getVSUPCloudCoordinate(qdata):
-    #print(qdata)
-    #print(qdata[1])
-    if qdata['ninety'] < 0.1:#m/s
+    if qdata['ninety'] < 0.1:
         return(3)#no cloud
     if qdata['ten'] > 0.9:
         return(6)#all cloudy
     if qdata['ten'] > 0.5:
         return(5)#lot of clouds
-    #if qdata['ten'] > 10:
-    #    return(2)
     if qdata['ninety'] < 0.5:
         return(4)#light clouds
     if qdata['seventy_five'] < 0.7:
-        return(1)
+        return(1)#possibly light clouds
     if qdata['twenty_five'] > 0.3:
-        return(2)
+        return(2)#possibly strong clouds
     return(0)
 
 def getHresWindCoordinate(qdata):
@@ -329,22 +325,18 @@ def getHresWindCoordinate(qdata):
             return 8
 
 def getVSUPWindCoordinate(qdata):
-    #print(qdata)
-    #print(qdata[1])
     if qdata['ninety'] < 3:#m/s
         return(3)#no wind
     if qdata['ten'] > 17.2:
         return(6)#storm
     if qdata['ten'] > 10 and qdata['ninety'] < 17.2:
         return(5)#strong wind
-    #if qdata['ten'] > 10:
-    #    return(2)
     if qdata['ninety'] < 10:
         return(4)#light wind
-    if qdata['seventy_five'] < 10:
-        return(1)
     if qdata['twenty_five'] > 10:
-        return(2)
+        return(2)#probably strong wind
+    if qdata['seventy_five'] < 10:
+        return(1)#probably light wind
     return(0)
 
 def getHresrainCoordinate(qdata):
@@ -389,26 +381,23 @@ def getHresrainCoordinate(qdata):
         pass
 
 def getVSUPrainCoordinate(qdata):
-    #print(qdata)
-    #print(qdata[1])
     if qdata['ninety'] < 1e-4:
-        return(3)
+        return(3)# no rain
     if qdata['ten'] > 2e-3:
-        return(6)
+        return(6)#strong rain
     if qdata['ten'] > 1e-3 and qdata['ninety'] < 2e-3:
-        return(5)
+        return(5)#medium rain
     if qdata['ten'] > 1e-3:
-        return(2)
+        return(2)#possibly rain
     if qdata['ninety'] < 1e-3:
-        return(4)
-    if qdata['seventy_five'] < 1.5e-3:
-        return(1)
+        return(4)#light rain
     if qdata['median'] > 1e-3:
-        return(2)
+        return(2)#possibly strong or medium rain
+    if qdata['seventy_five'] < 1.5e-3:
+        return(1)#possibly light rain
     return(0)
 
 def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx, plotType):
-    #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
     if plotType == "enhanced-hres":
         #hresFilenames = ["Stufe1_KeinRegen.png", "Stufe2_KeinRegen.png", "Stufe3_KeinRegen.png", "Stufe1_leichterRegen.png", "Stufe2_leichterRegen.png", "Stufe3_leichterRegen.png", "Stufe1_MittlererRegen.png", "Stufe2_MittlererRegen.png", "Stufe3_MittlererRegen.png", "Stufe1_Starkregen.png", "Stufe2_Starkregen.png",  "Stufe3_Starkregen.png"]
         hresFilenames = ["Stufe1_KeinRegen.png", "Stufe2_KeinRegen.png", "Stufe3_KeinRegen.png", "Stufe4_KeinRegen.png", "Stufe1_leichterRegen.png", "Stufe2_leichterRegen.png", "Stufe3_leichterRegen.png", "Stufe4_leichterRegen.png", "Stufe1_MittlererRegen.png", "Stufe2_MittlererRegen.png", "Stufe3_MittlererRegen.png", "Stufe4_MittlererRegen.png", "Stufe1_Starkregen.png", "Stufe2_Starkregen.png", "Stufe3_Starkregen.png", "Stufe4_Starkregen.png"]
