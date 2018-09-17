@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib.patches import Rectangle
 from matplotlib import offsetbox
 from tzwhere import tzwhere
 import pytz
@@ -41,7 +42,7 @@ def getNextDottedHour(hour):
     raise ValueError
 
 def getDottedHours(fromDate, toDate):
-    newDate = fromDate + timedelta(hours=3)
+    newDate = fromDate + timedelta(hours=0)
     dottedDates = [newDate]
     #print(newDate)
     #print(toDate)
@@ -125,8 +126,17 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
     numberedHours = getNumberedHours(dates[fromIdx], dates[toIdx-1])
     #print(numberedHours)
     #ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
+    coloredDay = 1
     for hour in numberedHours:
-        #ax.text(hour, ymin, str(hour.hour), horizontalalignment = "center", verticalalignment = "top" )
+        if hour.hour == 0:
+            if (coloredDay%2) == 1:
+                print(hour)
+                print(hour.hour)
+                if hour != numberedHours[-2] and hour != numberedHours[-1]:
+                    ax.add_patch(Rectangle((hour,ymin),1,ymax-ymin, facecolor="#cccccccc", zorder = 0))
+                elif hour != numberedHours[-1]:
+                    ax.add_patch(Rectangle((hour,ymin),0.5,ymax-ymin, facecolor="#cccccccc", zorder = 0))
+            coloredDay += 1
         ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "bottom", fontproperties=prop)
         if hour.hour == 12:
             ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center", verticalalignment = "top", fontproperties=prop)
