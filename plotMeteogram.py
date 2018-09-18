@@ -134,8 +134,9 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
                 print(hour.hour)
                 if hour != numberedHours[-2] and hour != numberedHours[-1]:
                     ax.add_patch(Rectangle((hour,ymin),1,ymax-ymin, facecolor="#cccccccc", zorder = 0))
-                elif hour != numberedHours[-1]:
-                    ax.add_patch(Rectangle((hour,ymin),0.5,ymax-ymin, facecolor="#cccccccc", zorder = 0))
+                else:#in case the end of the plot is at the end of this day
+                    tdTmp = (dates[toIdx-1]-hour).total_seconds()/(24*60**2)
+                    ax.add_patch(Rectangle((hour,ymin),tdTmp,ymax-ymin, facecolor="#cccccccc", zorder = 0))
             coloredDay += 1
         ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "bottom", fontproperties=prop)
         if hour.hour == 12:
