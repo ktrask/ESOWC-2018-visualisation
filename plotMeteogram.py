@@ -20,7 +20,7 @@ home = str(Path.home())
 
 if os.path.exists(home + "/.fonts/BebasNeue Regular.otf"):
     prop = fm.FontProperties(fname=home+'/.fonts/BebasNeue Regular.otf')
-    prop.set_size(12)
+    prop.set_size(14)
 else:
     prop = fm.FontProperties(family='DejaVu Sans')
 
@@ -122,7 +122,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
         ax.set_ylim(ymin-2*tmp,ymax+2*tmp)
     #print(dottedHours)
     yscale = yscale / 7
-    ax.vlines(dottedHours, ymin, ymax, linestyle = ':', color = "gray")
+    ax.vlines(dottedHours, ymin, ymax, linestyle = ':', color = "gray", zorder = 0.1)
     numberedHours = getNumberedHours(dates[fromIdx], dates[toIdx-1])
     #print(numberedHours)
     #ax.yaxis.set_major_formatter(FormatStrFormatter('%d'+'\N{DEGREE SIGN}'+'C'))
@@ -138,9 +138,9 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
                     tdTmp = (dates[toIdx-1]-hour).total_seconds()/(24*60**2)
                     ax.add_patch(Rectangle((hour,ymin),tdTmp,ymax-ymin, facecolor="#cccccccc", zorder = 0))
             coloredDay += 1
-        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "bottom", fontproperties=prop)
+        ax.text(hour, ymax, str(hour.hour), horizontalalignment = "center", verticalalignment = "bottom", fontproperties=prop, zorder = 0)
         if hour.hour == 12:
-            ax.text(hour, ymin-yscale/1.7, getWeekdayString(hour.weekday()), horizontalalignment = "center", verticalalignment = "top", fontproperties=prop)
+            ax.text(hour, ymin-yscale/2, str(hour.day) + " " + getWeekdayString(hour.weekday()), horizontalalignment = "center", verticalalignment = "top", fontproperties=prop, zorder = 0)
     ax.axis('off')
     #ax.box(on=None)
     #ax.get_xaxis().set_visible(False)
@@ -160,7 +160,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
             elif plotType == "enhanced-hres":
                 temp = temps['hres'][i]
             #print(date)
-            ax.scatter(date, temp - yscale, s=300, color = "darkcyan")
+            ax.scatter(date, temp - yscale, s=400, color = "#008B8BFF")
             ax.text(date, temp - yscale, str(int(np.round(temp))),
                     horizontalalignment = "center",
                     verticalalignment = "center",
@@ -172,7 +172,7 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
             elif plotType == "enhanced-hres":
                 temp = temps['hres'][i]
             #print(date)
-            ax.scatter(date, temp + yscale, s=300, color = "orange")
+            ax.scatter(date, temp + yscale, s=400, color = "#FF8308")#"#FF5500")
             ax.text(date, temp + yscale, str(int(np.round(temp))),
                     horizontalalignment = "center",
                     verticalalignment = "center",
