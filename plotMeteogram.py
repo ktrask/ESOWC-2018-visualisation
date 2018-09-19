@@ -81,8 +81,9 @@ def getWeekdayString(day):
         return "Sunday"
 
 def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
-    startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]))
+    startDate = datetime(int(qdata['date'][0:4]),int(qdata['date'][4:6]),int(qdata['date'][6:8]),int(qdata['time'][0:2]))
     startDate = pytz.timezone('UTC').localize(startDate)
+    print("what date?", startDate)
     if tzName:
         startDate = startDate.astimezone(pytz.timezone(tzName))
     dates = [startDate + timedelta(hours=int(i)) for i in qdata['2t']['steps']]
