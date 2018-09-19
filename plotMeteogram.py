@@ -181,12 +181,12 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
 def plotWindBft(ax, qdata, fromIdx, toIdx, plotType):
     #vsupFilenames = ["rain_fuzzy.png", "rain_fuzzynotraining.png", "rain_fuzzyraining.png", "rain_norain.png", "rain_lightrain.png", "rain_rain.png", "rain_strongrain.png"]
     if plotType == "enhanced-hres":
-        #vsupFilenames = ["Stufe1_Windstille.png", "Stufe2_Windstille.png", "Stufe3_Windstille.png", "Stufe1_leichterWind.png", "Stufe2_leichterWind.png", "Stufe3_leichterWind.png", "Stufe1_starkerWind.png", "Stufe2_starkerWind.png", "Stufe3_starkerWind.png", "Stufe1_Sturm.png", "Stufe2_Sturm.png", "Stufe3_Sturm.png"]
+        #vsupFilenames = ["", "Stufe2_Windstille.png", "Stufe3_Windstille.png", "Stufe1_leichterWind.png", "Stufe2_leichterWind.png", "Stufe3_leichterWind.png", "Stufe1_starkerWind.png", "Stufe2_starkerWind.png", "Stufe3_starkerWind.png", "Stufe1_Sturm.png", "Stufe2_Sturm.png", "Stufe3_Sturm.png"]
         vsupFilenames = ["Stufe1_Windstille.png", "Stufe2_Windstille.png", "Stufe3_Windstille.png", "Stufe4_Windstille.png", "Stufe1_leichterWind.png", "Stufe2_leichterWind.png", "Stufe3_leichterWind.png", "Stufe4_leichterWind.png", "Stufe1_starkerWind.png", "Stufe2_starkerWind.png", "Stufe3_starkerWind.png", "Stufe4_starkerWind.png", "Stufe1_Sturm.png", "Stufe2_Sturm.png", "Stufe3_Sturm.png", "Stufe4_Sturm.png"]
         files = [vsupFilenames[getHresWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/wind/enhanced_hres/'
     else:
-        vsupFilenames = ["wind_step1_variant.svg.png", "Stufe2_kaumWind.png", "Stufe2_vielWind.png", "Stufe3_Windstille.png", "Stufe3_leichterWind.png", "Stufe3_starkerWind.png", "Stufe3_Sturm.png"]
+        vsupFilenames = ["step1_v2.png", "Stufe2_kaumWind.png", "Stufe2_vielWind.png", "Stufe3_Windstille.png", "Stufe3_leichterWind.png", "Stufe3_starkerWind.png", "Stufe3_Sturm.png"]
         files = [vsupFilenames[getVSUPWindCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/wind/'
     zoomFactor = 7.72 / (toIdx - fromIdx)

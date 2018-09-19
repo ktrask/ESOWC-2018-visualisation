@@ -23,6 +23,7 @@ api  = { "url": "https://api.ecmwf.int/v1/services/meteogram/requests/",
 
 async def downloadData(session, param,allMeteogramData, longitude, latitude, altitude, writeToFile = True, meteogram = "10days"):
     yesterday = datetime.utcnow()
+    #yesterday = datetime(2018,9,13,10,0)
     #if yesterday.hour < 19:
     if yesterday.hour < 8:
         yesterday = yesterday - timedelta(hour=10)
