@@ -204,7 +204,7 @@ def plotCloudVSUP(ax, qdata, fromIdx, toIdx, plotType):
         files = [vsupFilenames[getHresCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/cloud/enhanced_hres/'
     else:
-        vsupFilenames = ["cloud_step1_variant.svg.png", "Stufe2_eherSonnig.png", "Stufe2_eherBewoelkt.png", "Stufe3_klarerHimmel.png", "Stufe3_leichtBedeckt.png", "Stufe3_mittlereBewoelkung.png", "Stufe3_starkBewoelkt.png"]
+        vsupFilenames = ["step1.png", "step2_mostly_clear.png", "step2_mostly_cloudy.png", "step3_sunny.png", "step3_light_clouds.png", "step3_medium_cloudy.png", "step3_cloud_max.png"]
         files = [vsupFilenames[getVSUPCloudCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/cloud/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
