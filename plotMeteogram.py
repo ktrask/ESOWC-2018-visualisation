@@ -406,7 +406,7 @@ def plotPrecipitationVSUP(ax, qdata, fromIdx, toIdx, plotType):
         files = [hresFilenames[getHresrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/rain/enhanced_hres/'
     else:
-        vsupFilenames = ["Rain_step1_variant.svg.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe3_Starkregen.png"]
+        vsupFilenames = ["step1_v2.png", "Stufe2_KaumRegen.png", "Stufe2_Regen.png", "Stufe3_KeinRegen.png", "Stufe3_leichterRegen.png", "Stufe3_MittlererRegen.png", "Stufe3_Starkregen.png"]
         files = [vsupFilenames[getVSUPrainCoordinate({key: qdata[key][i] for key in qdata})] for i in range(fromIdx,toIdx)]
         image_path = './pictogram/rain/'
     zoomFactor = 7.72 / (toIdx - fromIdx)
