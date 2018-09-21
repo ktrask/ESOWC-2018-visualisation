@@ -26,7 +26,7 @@ async def downloadData(session, param,allMeteogramData, longitude, latitude, alt
     #yesterday = datetime(2018,9,13,10,0)
     #if yesterday.hour < 19:
     if yesterday.hour < 8:
-        yesterday = yesterday - timedelta(hour=10)
+        yesterday = yesterday - timedelta(hours=10)
     with async_timeout.timeout(10):
         timeString = "0000"
         if yesterday.hour >= 19:
