@@ -85,7 +85,10 @@ def plotTemperature(ax, qdata, fromIdx, toIdx, tzName, plotType):
     startDate = pytz.timezone('UTC').localize(startDate)
     print("what date?", startDate)
     if tzName:
-        startDate = startDate.astimezone(pytz.timezone(tzName))
+        try:
+            startDate = startDate.astimezone(pytz.timezone(tzName))
+        except:
+            pass
     dates = [startDate + timedelta(hours=int(i)) for i in qdata['2t']['steps']]
     #convert temperatures to numpy arrays:
     temps = {}
@@ -487,7 +490,10 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType):
         startDate = datetime(int(dictNew['date'][0:4]),int(dictNew['date'][4:6]),int(dictNew['date'][6:8]))
         startDate = pytz.timezone('UTC').localize(startDate)
         if tzName:
+        try:
             startDate = startDate.astimezone(pytz.timezone(tzName))
+        except:
+            pass
         steps = [28 - startDate.utcoffset().total_seconds()/3600]
         print(steps)
         for _ in range(1,len(dictNew['2t']['max'])):
