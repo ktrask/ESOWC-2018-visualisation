@@ -490,10 +490,10 @@ def plotMeteogram(allMeteogramData, fromIndex, toIndex, tzName, plotType):
         startDate = datetime(int(dictNew['date'][0:4]),int(dictNew['date'][4:6]),int(dictNew['date'][6:8]))
         startDate = pytz.timezone('UTC').localize(startDate)
         if tzName:
-        try:
-            startDate = startDate.astimezone(pytz.timezone(tzName))
-        except:
-            pass
+            try:
+                startDate = startDate.astimezone(pytz.timezone(tzName))
+            except:
+                pass
         steps = [28 - startDate.utcoffset().total_seconds()/3600]
         print(steps)
         for _ in range(1,len(dictNew['2t']['max'])):
