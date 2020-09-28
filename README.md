@@ -2,6 +2,12 @@
 Innovative Visualisation - Communicate Weather at the ECMWF Summer of Code 2018
 http://esowc.ecmwf.int/
 
+
+![Meteogram](wettervorhersage.png)
+
+## Running the server
+
+
 The script file needs an API-Key from the ecmwf. It can be obtained from https://api.ecmwf.int/v1/key/
 If no key is available, example data can be used.
 
