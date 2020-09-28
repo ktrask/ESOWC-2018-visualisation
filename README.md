@@ -3,7 +3,7 @@ Innovative Visualisation - Communicate Weather at the ECMWF Summer of Code 2018
 http://esowc.ecmwf.int/
 
 
-![Meteogram](wettervorhersage.png)
+![Example Meteogram](https://raw.githubusercontent.com/ktrask/ESOWC-2018-visualisation/master/wettvorhersage.png)
 
 ## Running the server
 
