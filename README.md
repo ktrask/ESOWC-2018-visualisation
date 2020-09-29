@@ -5,6 +5,10 @@ http://esowc.ecmwf.int/
 
 ![Example Meteogram](https://raw.githubusercontent.com/ktrask/ESOWC-2018-visualisation/master/wettvorhersage.png)
 
+Legend:
+
+![Legend of Meteogram](https://raw.githubusercontent.com/ktrask/ESOWC-2018-visualisation/master/pictogram/legend%2Btext_21_09_2018.png)
+
 ## Running the server
 
 
